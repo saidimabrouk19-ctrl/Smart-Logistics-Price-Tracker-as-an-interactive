@@ -1,83 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LogisTrack - Global Shipment Tracking</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
+        .container { max-width: 800px; margin: 0 auto; }
         header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: rgba(255,255,255,0.95);
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-
-        header h1 {
-            color: #667eea;
-            font-size: 2.5em;
-        }
-
-        header p {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 15px;
-        }
-
+        header h1 { color: #667eea; font-size: 2.2em; }
+        header p { color: #888; margin-top: 5px; }
         .content {
             background: white;
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            margin-bottom: 30px;
+            border-radius: 12px;
+            padding: 35px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
         }
-
-        /* TRACKING SECTION */
-        .tracking-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
+        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
         .input-group input {
             flex: 1;
-            padding: 15px;
+            padding: 14px 18px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 1em;
-            transition: border-color 0.3s ease;
+            direction: ltr;
+            text-align: left;
+            transition: border-color 0.3s;
         }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
+        .input-group input:focus { outline: none; border-color: #667eea; }
         .input-group button {
-            padding: 15px 40px;
+            padding: 14px 35px;
             background: #667eea;
             color: white;
             border: none;
@@ -85,40 +50,27 @@
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
-
-        .input-group button:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
+        .input-group button:hover { background: #764ba2; transform: translateY(-2px); }
+        .hint { font-size: 0.85em; color: #aaa; text-align: center; direction: ltr; margin-bottom: 10px; }
+        .loading { text-align: center; padding: 20px; color: #667eea; display: none; font-size: 1.1em; }
         .result {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-            display: none; /* يظهر فقط برمجياً عند نجاح البحث */
-            margin-top: 20px;
+            background: #f0f4ff;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            display: none;
+            margin-top: 15px;
+            animation: fadeIn 0.4s ease;
         }
-
-        .result h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .result p {
-            color: #555;
-            margin: 10px 0;
-            font-size: 1.05em;
-            line-height: 1.6;
-        }
-
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .result h3 { color: #667eea; margin-bottom: 15px; font-size: 1.3em; }
+        .result p { color: #444; margin: 10px 0; font-size: 1em; line-height: 1.7; }
+        .result p strong { color: #333; }
         .status-badge {
             display: inline-block;
-            padding: 8px 16px;
+            padding: 7px 18px;
             background: #4caf50;
             color: white;
             border-radius: 20px;
@@ -126,224 +78,185 @@
             margin-top: 10px;
             font-weight: bold;
         }
-
-        /* PRICING SECTION */
+        .error-msg {
+            background: #fff3f3;
+            border-left: 5px solid #f44336;
+            padding: 18px;
+            border-radius: 10px;
+            color: #c62828;
+            margin-top: 15px;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
         }
-
         .pricing-card {
             background: #f8f9fa;
             border-radius: 10px;
-            padding: 30px;
+            padding: 28px;
             text-align: center;
-            transition: all 0.3s ease;
             border: 2px solid transparent;
+            transition: all 0.3s;
         }
-
-        .pricing-card:hover {
-            transform: translateY(-10px);
-            border-color: #667eea;
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
-        }
-
-        .pricing-card.featured {
-            background: #667eea;
-            color: white;
-        }
-
-        .pricing-card h3 {
-            font-size: 1.8em;
-            margin-bottom: 15px;
-        }
-
-        .price {
-            font-size: 2.5em;
-            font-weight: bold;
-            margin: 20px 0;
-            color: #667eea;
-        }
-
-        .pricing-card.featured .price {
-            color: white;
-        }
-
-        .features {
-            text-align: left;
-            margin: 20px 0;
-        }
-
-        .features li {
-            list-style: none;
-            padding: 8px 0;
-            color: #666;
-        }
-
-        .pricing-card.featured .features li {
-            color: white;
-        }
-
-        .features li:before {
-            content: "✓ ";
-            color: #667eea;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .pricing-card.featured .features li:before {
-            color: white;
-        }
-
-        .payment-methods {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px solid #e0e0e0;
-        }
-
-        .payment-methods h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .payment-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
+        .pricing-card:hover { border-color: #667eea; transform: translateY(-8px); box-shadow: 0 15px 35px rgba(102,126,234,0.2); }
+        .pricing-card.featured { background: #667eea; color: white; }
+        .pricing-card h3 { font-size: 1.6em; margin-bottom: 12px; }
+        .price { font-size: 2.3em; font-weight: bold; margin: 15px 0; color: #667eea; }
+        .pricing-card.featured .price { color: white; }
+        .features { text-align: right; margin: 18px 0; }
+        .features li { list-style: none; padding: 7px 0; color: #666; }
+        .pricing-card.featured .features li { color: white; }
+        .features li:before { content: "✓ "; color: #667eea; font-weight: bold; }
+        .pricing-card.featured .features li:before { color: white; }
+        .payment-methods { margin-top: 28px; padding-top: 28px; border-top: 2px solid #eee; }
+        .payment-methods h3 { color: #667eea; margin-bottom: 18px; text-align: center; }
+        .payment-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .payment-btn {
-            padding: 15px;
+            padding: 14px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             background: white;
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            transition: all 0.3s;
         }
-
-        .payment-btn:hover {
-            border-color: #667eea;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-        }
-
-        .payment-btn.stripe {
-            color: #635BFF;
-            border-color: #635BFF;
-        }
-
-        .payment-btn.paypal {
-            color: #003087;
-            border-color: #003087;
-        }
+        .payment-btn.stripe { color: #635BFF; border-color: #635BFF; }
+        .payment-btn.paypal { color: #003087; border-color: #003087; }
     </style>
-</script>
 </head>
 <body>
-
 <div class="container">
     <header>
-        <div class="header-top">
-            <h1>LogisTrack</h1>
-        </div>
+        <h1>🚚 LogisTrack</h1>
         <p>Global Shipment Tracking System</p>
     </header>
 
-    <!-- قاطع تتبع الشحنات المفتوح دائماً -->
     <div class="content">
-        <div class="tracking-container">
-            <div class="input-group">
-                <input type="text" id="trackingInput" placeholder="Entrez le numéro de suivi (ex: LT-77301-PL)">
-                <button id="searchBtn">Recherche</button>
-            </div>
+        <div class="input-group">
+            <input type="text" id="trackingInput" placeholder="أدخل رقم التتبع — مثال: LT-77301-PL">
+            <button id="searchBtn">🔍 بحث</button>
+        </div>
+        <p class="hint">Example: LT-77301-PL</p>
 
-            <!-- لوحة نتائج الفايربيس -->
-            <div class="result" id="resultBox">
-                <h3>Détails de la cargaison</h3>
-                <p><strong>Numéro:</strong> <span id="resNum">-</span></p>
-                <p><strong>Emplacement:</strong> <span id="resLocation">-</span></p>
-                <div class="status-badge" id="resStatus">Statut</div>
-            </div>
+        <div class="loading" id="loadingBox">⏳ جاري البحث...</div>
+
+        <div class="result" id="resultBox">
+            <h3>📦 تفاصيل الشحنة</h3>
+            <p><strong>رقم التتبع:</strong> <span id="resNum">-</span></p>
+            <p><strong>الموقع:</strong> <span id="resLocation">-</span></p>
+            <div class="status-badge" id="resStatus">-</div>
+        </div>
+
+        <div class="error-msg" id="errorBox">
+            ❌ لم يتم العثور على شحنة بهذا الرقم.
         </div>
     </div>
 
-    <!-- كتل الخطط والأسعار -->
     <div class="content">
         <div class="pricing-grid">
             <div class="pricing-card">
-                <h3>Basic Plan</h3>
-                <div class="price">$19<span style="font-size: 0.4em;">/mo</span></div>
+                <h3>Basic</h3>
+                <div class="price">$19<span style="font-size:0.4em;">/mo</span></div>
                 <ul class="features">
-                    <li>Suivi de 50 colis</li>
-                    <li>Support par email</li>
-                    <li>Mises à jour quotidiennes</li>
+                    <li>تتبع 50 طرد</li>
+                    <li>دعم بالبريد</li>
+                    <li>تحديثات يومية</li>
                 </ul>
             </div>
             <div class="pricing-card featured">
-                <h3>Pro Plan</h3>
-                <div class="price">$49<span style="font-size: 0.4em;">/mo</span></div>
+                <h3>Pro</h3>
+                <div class="price">$49<span style="font-size:0.4em;">/mo</span></div>
                 <ul class="features">
-                    <li>Suivi illimité</li>
-                    <li>Support 24/7</li>
-                    <li>Notifications en temps réel</li>
-                    <li>Accès API</li>
+                    <li>تتبع غير محدود</li>
+                    <li>دعم 24/7</li>
+                    <li>إشعارات فورية</li>
+                    <li>وصول API</li>
                 </ul>
             </div>
         </div>
-
         <div class="payment-methods">
-            <h3>Méthodes de paiement sécurisées</h3>
+            <h3>طرق الدفع الآمنة</h3>
             <div class="payment-buttons">
-                <button class="payment-btn stripe" id="stripeBtn">Pay with Stripe</button>
-                <button class="payment-btn paypal" id="paypalBtn">Pay with PayPal</button>
+                <button class="payment-btn stripe" onclick="alert('✅ Stripe مفعّل!')">💳 Stripe</button>
+                <button class="payment-btn paypal" onclick="alert('✅ PayPal مفعّل!')">🅿 PayPal</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- تشغيل سكريبت الوحدات لـ Firebase دون أي تداخلات أو شروط إخفاء -->
+<!-- ✅ Firebase روابط صحيحة -->
 <script type="module">
-    import { initializeApp } from "https://gstatic.com";
-    import { getFirestore, doc, getDoc } from "https://gstatic.com";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBq_-yMBzDfK_9fA1fa2Jzpe0O87yw5UbY",
-      authDomain: "://firebaseapp.com",
-      projectId: "smart-logistics-f4f86",
-      storageBucket: "smart-logistics-f4f86.firebasestorage.app",
-      messagingSenderId: "227224904315",
-      appId: "1:227224904315:web:62f74fb778562111e578de",
-      measurementId: "G-RNWVXQW7ZW"
+        apiKey: "AIzaSyBq_-yMBzDfK_9fA1fa2Jzpe0O87yw5UbY",
+        authDomain: "smart-logistics-f4f86.firebaseapp.com",
+        projectId: "smart-logistics-f4f86",
+        storageBucket: "smart-logistics-f4f86.firebasestorage.app",
+        messagingSenderId: "227224904315",
+        appId: "1:227224904315:web:62f74fb778562111e578de",
+        measurementId: "G-RNWVXQW7ZW"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // تفعيل أزرار الدفع التجريبية
-    document.getElementById("stripeBtn").addEventListener("click", () => alert("Système de test Stripe activé !"));
-    document.getElementById("paypalBtn").addEventListener("click", () => alert("Système de test PayPal activé !"));
-
-    // تشغيل دالة البحث عند الضغط
     document.getElementById("searchBtn").addEventListener("click", async () => {
-        const trackingInput = document.getElementById("trackingInput").value.trim().toUpperCase();
+        const input = document.getElementById("trackingInput").value.trim().toUpperCase();
         const resultBox = document.getElementById("resultBox");
+        const errorBox  = document.getElementById("errorBox");
+        const loadingBox = document.getElementById("loadingBox");
 
-        if (trackingInput === "") {
-            alert("Veuillez entrer un numéro de suivi !");
+        resultBox.style.display = "none";
+        errorBox.style.display  = "none";
+
+        if (!input) {
+            alert("⚠️ الرجاء إدخال رقم التتبع!");
             return;
         }
 
-        if (trackingInput === "LT-77301-PL" || trackingInput === "T-77301-PL") {
-            try {
-                const docRef = doc(db, "hameçonnage", "NDbWXxv0sLgPdzvgwgZK");
-                const docSnap = await getDoc(docRef);
+        loadingBox.style.display = "block";
 
-                if (docSnap.exists()) {
+        try {
+            // ✅ المجموعة والوثيقة الصحيحة من Firestore
+            const docRef  = doc(db, "hameçonnage", "NDbWXxv0sLgPdzvgwgZK");
+            const docSnap = await getDoc(docRef);
+
+            loadingBox.style.display = "none";
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+
+                // التحقق أن رقم التتبع المدخل يطابق ما في Firestore
+                if (data.trackingNumber && data.trackingNumber.toUpperCase() === input) {
+                    document.getElementById("resNum").textContent      = data.trackingNumber;
+                    document.getElementById("resLocation").textContent = data.location;
+                    document.getElementById("resStatus").textContent   = data.status;
+                    resultBox.style.display = "block";
+                } else {
+                    errorBox.style.display = "block";
+                }
+            } else {
+                errorBox.style.display = "block";
+            }
+
+        } catch (error) {
+            loadingBox.style.display = "none";
+            errorBox.textContent = "⚠️ خطأ: " + error.message;
+            errorBox.style.display = "block";
+            console.error(error);
+        }
+    });
+
+    // Enter للبحث
+    document.getElementById("trackingInput").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") document.getElementById("searchBtn").click();
+    });
+</script>
+</body>
+</html>
