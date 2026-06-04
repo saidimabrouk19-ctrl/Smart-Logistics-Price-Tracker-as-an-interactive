@@ -520,6 +520,57 @@
             }, 5000);
         }
     </script>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCYqdxGHYXkh6H-mGbrABCCY5C668Mcuxw",
+    authDomain: "smart-logistics-f4f86.firebaseapp.com",
+    projectId: "smart-logistics-f4f86",
+    storageBucket: "smart-logistics-f4f86.firebasestorage.app",
+    messagingSenderId: "227224904315",
+    appId: "1:227224904315:web:62f74fb778562111e578de",
+    measurementId: "G-RNWVXQW7ZW"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>// استدعاء وظائف قاعدة البيانات
+import { getFirestore, collection, query, where, getDocs } from "https://gstatic.com";
+const db = getFirestore(app);
+
+// دالة تتبع الشحنات الحية
+window.trackShipment = async function() {
+  const trackingInput = document.getElementById("trackingId")?.value || "LT-77301-PL"; 
+  const resultDiv = document.getElementById("trackingResult");
+  
+  if(!resultDiv) return;
+  resultDiv.innerHTML = "جاري البحث في قاعدة البيانات...";
+
+  try {
+      const q = query(collection(db, "shipments"), where("trackingNumber", "==", trackingInput));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+          querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              resultDiv.innerHTML = `حالة الشحنة: <b>${data.status}</b> | الموقع: ${data.location}`;
+          });
+      } else {
+          resultDiv.innerHTML = "رقم الشحنة غير موجود في السجلات.";
+      }
+  } catch (error) {
+      resultDiv.innerHTML = "حدث خطأ أثناء الاتصال بالخادم.";
+      console.error(error);
+  }
+}
+</script>
 </body>
 </html>
