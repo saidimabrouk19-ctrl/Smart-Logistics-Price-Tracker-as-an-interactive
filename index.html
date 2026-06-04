@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logistrack - Smart Price Intelligence</title>
     <style>
-        /* التنسيقات العامة والأساسية للموقع المظلم */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -55,7 +54,6 @@
             margin-top: 4px;
         }
 
-        /* شريط التبويبات الثلاثي */
         .tabs {
             display: flex;
             background-color: #030a16;
@@ -161,7 +159,6 @@
             text-transform: uppercase;
         }
 
-        /* حاويات الحالة والنتائج المستقرة */
         .status-container {
             text-align: center;
             padding: 20px 10px;
@@ -199,7 +196,6 @@
             width: 100%;
         }
 
-        /* ستايل كروت الاشتراكات وباقات الأسعار التجاري */
         .pricing-card {
             background-color: #071731;
             border: 1px solid #112d5a;
@@ -256,7 +252,6 @@
             border: none;
         }
 
-        /* التبديل الهيكلي الصحيح */
         .page-section {
             display: none;
         }
@@ -268,13 +263,11 @@
 <body>
 
     <div class="app-container">
-        <!-- الرأس الترحيبي والتجاري للتطبيق -->
         <div class="app-header">
             <h1>LOGISTRACK</h1>
             <p>SMART PRICE INTELLIGENCE</p>
         </div>
 
-        <!-- شريط التبويبات الفعال -->
         <div class="tabs">
             <div class="tab active" id="tab-compare" onclick="switchTab('compare')">COMPARE</div>
             <div class="tab" id="tab-tracking" onclick="switchTab('tracking')">TRACKING</div>
@@ -283,7 +276,7 @@
 
         <div class="main-content">
             
-            <!-- ================= قسم 1: مقارنة وحساب الأسعار ================= -->
+            <!-- قسم المقارنة وحساب الأسعار -->
             <div id="section-compare" class="page-section active-section">
                 <div class="form-card">
                     <div class="card-title">• Shipment Parameters</div>
@@ -311,7 +304,7 @@
                 </div>
             </div>
 
-            <!-- ================= قسم 2: تتبع الشحنات التفاعلي ================= -->
+            <!-- قسم التتبع -->
             <div id="section-tracking" class="page-section">
                 <div class="form-card">
                     <div class="card-title">• Track Shipment</div>
@@ -321,3 +314,11 @@
                     </div>
                     <button class="action-btn" onclick="performTrack()">Track Status</button>
                 </div>
+            </div>
+
+            <!-- قسم خطط الأسعار والاشتراكات المالية -->
+            <div id="section-pricing" class="page-section">
+                <div class="pricing-card">
+                    <div class="plan-title">Free Trial</div>
+                    <div class="plan-price">$0 <span style="font-size:10px; color:#4f688a;">/ forever</span></div>
+                    <div class="plan-features">• 5 searches per month<br>• Standard support<br>• Basic carrier routing</div>
