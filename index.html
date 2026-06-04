@@ -6,8 +6,6 @@
     <title>LogisTrack - Global Shipment Tracking</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
     <style>
         * {
             margin: 0;
@@ -163,6 +161,10 @@
             background: #764ba2;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .input-group button:active {
+            transform: translateY(0);
         }
 
         .result {
@@ -336,22 +338,11 @@
             border-color: #0070BA;
         }
 
-        .payment-btn.apple {
-            color: #000;
-            border-color: #000;
-        }
-
-        .payment-btn.google {
-            color: #4285F4;
-            border-color: #4285F4;
-        }
-
         /* COMPARE SECTION */
         .compare-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            overflow-x: auto;
         }
 
         .compare-table th {
@@ -381,47 +372,7 @@
             font-weight: bold;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8em;
-            }
-
-            .header-top {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            nav {
-                flex-direction: column;
-            }
-
-            nav button {
-                width: 100%;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .payment-buttons {
-                grid-template-columns: 1fr;
-            }
-
-            .compare-table {
-                font-size: 0.9em;
-            }
-
-            .compare-table th,
-            .compare-table td {
-                padding: 10px;
-            }
-        }
-
+        /* ALERTS */
         .loader {
             display: none;
             text-align: center;
@@ -447,34 +398,72 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error {
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert.error {
             background: #fee;
             color: #c33;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none;
+            border-left: 4px solid #c33;
         }
 
-        .error.show {
-            display: block;
-        }
-
-        .success {
+        .alert.success {
             background: #efe;
             color: #3c3;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none;
+            border-left: 4px solid #3c3;
         }
 
-        .success.show {
-            display: block;
+        .alert.info {
+            background: #eef;
+            color: #33c;
+            border-left: 4px solid #33c;
         }
 
-        #paypal-button-container {
-            margin-top: 20px;
+        .alert.warning {
+            background: #ffe;
+            color: #cc3;
+            border-left: 4px solid #cc3;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .header-top {
+                flex-direction: column;
+            }
+
+            nav {
+                flex-direction: column;
+            }
+
+            nav button {
+                width: 100%;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-buttons {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -501,9 +490,9 @@
             </div>
 
             <nav>
-                <button class="nav-btn active" onclick="switchTab('tracking')">Track Shipment</button>
-                <button class="nav-btn" onclick="switchTab('compare')">Compare Plans</button>
-                <button class="nav-btn" onclick="switchTab('pricing')">Pricing</button>
+                <button class="nav-btn active" data-tab="tracking">Track Shipment</button>
+                <button class="nav-btn" data-tab="compare">Compare Plans</button>
+                <button class="nav-btn" data-tab="pricing">Pricing</button>
             </nav>
         </header>
 
@@ -515,11 +504,11 @@
                 <div class="input-group">
                     <input 
                         type="text" 
-                        id="trackInput" 
+                        id="trackingInput" 
                         placeholder="Enter tracking number (e.g., LT-77301-PL)"
                         autocomplete="off"
                     >
-                    <button onclick="trackShipment()">🔍 Search</button>
+                    <button id="searchBtn" type="button">🔍 Search</button>
                 </div>
 
                 <div class="loader" id="loader">
@@ -527,8 +516,7 @@
                     <p style="margin-top: 10px; color: #667eea;">Searching...</p>
                 </div>
 
-                <div class="error" id="error"></div>
-                <div class="success" id="success"></div>
+                <div id="trackingAlert" class="alert"></div>
 
                 <div class="result" id="trackingResult">
                     <h3>✅ Shipment Found</h3>
@@ -599,12 +587,6 @@
                         <td>❌</td>
                         <td class="check">✓</td>
                     </tr>
-                    <tr>
-                        <td class="feature">System Integration</td>
-                        <td>❌</td>
-                        <td>❌</td>
-                        <td class="check">✓</td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -620,7 +602,7 @@
                     <p style="color: #999;">Perfect for Individuals</p>
                     <div class="price">
                         <span id="basic-price">$9</span>
-                        <div class="currency-display" id="basic-currency">/month</div>
+                        <div class="currency-display">/month</div>
                     </div>
                     <ul class="features">
                         <li>10 shipments per month</li>
@@ -629,10 +611,10 @@
                         <li>Basic alerts</li>
                     </ul>
                     <div class="payment-methods">
-                        <button class="payment-btn stripe" onclick="openCheckout('basic', 9)">
+                        <button type="button" class="payment-btn stripe" onclick="handlePayment('basic', 9)">
                             💳 Pay with Stripe
                         </button>
-                        <button class="payment-btn paypal" onclick="openPayPal('basic', 9)">
+                        <button type="button" class="payment-btn paypal" onclick="handlePayment('basic', 9, 'paypal')">
                             🅿️ Pay with PayPal
                         </button>
                     </div>
@@ -655,10 +637,10 @@
                         <li>Custom alerts</li>
                     </ul>
                     <div class="payment-methods">
-                        <button class="payment-btn stripe" onclick="openCheckout('pro', 29)">
+                        <button type="button" class="payment-btn stripe" onclick="handlePayment('pro', 29)">
                             💳 Pay with Stripe
                         </button>
-                        <button class="payment-btn paypal" onclick="openPayPal('pro', 29)">
+                        <button type="button" class="payment-btn paypal" onclick="handlePayment('pro', 29, 'paypal')">
                             🅿️ Pay with PayPal
                         </button>
                     </div>
@@ -677,4 +659,13 @@
                         <li>Advanced tracking</li>
                         <li>Custom reports</li>
                         <li>24/7 support</li>
-    
+                        <li>Dedicated account manager</li>
+                        <li>API access</li>
+                        <li>Full integration</li>
+                    </ul>
+                    <div class="payment-methods">
+                        <button type="button" class="payment-btn stripe" onclick="handlePayment('enterprise', 99)">
+                            💳 Pay with Stripe
+                        </button>
+                        <button type="button" class="payment-btn paypal" onclick="handlePayment('enterprise', 99, 'paypal')">
+        
