@@ -1,611 +1,647 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logistrack - Smart Price Intelligence</title>
+    <title>LogisTrack - نظام تتبع الشحنات</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: #030a16;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 410px;
-            background-color: #051124;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            border: 1px solid #0d2347;
-            padding-bottom: 20px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .app-header {
-            background-color: #020813;
+        header {
+            background: rgba(255, 255, 255, 0.95);
             padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
-            border-bottom: 1px solid #0d2347;
         }
 
-        .app-header h1 {
-            font-size: 16px;
-            letter-spacing: 2px;
-            color: #ffffff;
-            font-weight: 700;
+        header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
         }
 
-        .app-header p {
-            font-size: 10px;
-            color: #4f688a;
-            letter-spacing: 1px;
-            margin-top: 4px;
+        header p {
+            color: #666;
+            font-size: 1.1em;
         }
 
-        .tabs {
+        nav {
             display: flex;
-            background-color: #030a16;
-            border-bottom: 1px solid #0d2347;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 14px 5px;
-            text-align: center;
-            font-size: 11px;
-            color: #4f688a;
-            cursor: pointer;
-            letter-spacing: 1px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            border: none;
-            background: none;
-        }
-
-        .tab.active {
-            color: #3b82f6;
-            background-color: #071731;
-            border-bottom: 2px solid #3b82f6;
-        }
-
-        .tab:hover {
-            color: #3b82f6;
-        }
-
-        .main-content {
-            padding: 20px;
-        }
-
-        .form-card {
-            background-color: #071731;
-            border: 1px solid #112d5a;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .card-title {
-            font-size: 11px;
-            color: #3b82f6;
-            letter-spacing: 1.5px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-
-        .inputs-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
-            margin-bottom: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        nav button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        nav button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .content {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TRACKING SECTION */
+        .tracking-container {
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .input-group {
             display: flex;
-            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
         }
 
-        .input-group label {
-            font-size: 9px;
-            color: #4f688a;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .input-field {
-            background-color: #030a16;
-            border: 1px solid #112d5a;
-            color: #ffffff;
-            padding: 12px 8px;
-            border-radius: 8px;
-            font-size: 13px;
-            text-align: center;
-            outline: none;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .input-field:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
-        }
-
-        .input-field-left {
-            text-align: left;
-            padding-left: 12px;
-        }
-
-        select.input-field {
-            appearance: none;
-            cursor: pointer;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f688a' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-            background-size: 16px;
-            padding-right: 30px;
-        }
-
-        .action-btn {
-            background-color: #3b82f6;
-            color: #ffffff;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            width: 100%;
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            margin-top: 15px;
-        }
-
-        .action-btn:hover:not(:disabled) {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
-        }
-
-        .action-btn:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .pricing-card {
-            background-color: #071731;
-            border: 1px solid #112d5a;
-            border-radius: 12px;
+        .input-group input {
+            flex: 1;
             padding: 15px;
-            margin-bottom: 12px;
-            position: relative;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group button {
+            padding: 15px 40px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
             transition: all 0.3s ease;
         }
 
-        .pricing-card:hover {
-            border-color: #3b82f6;
+        .input-group button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .pricing-card.popular {
-            border-color: #3b82f6;
-            background-color: #0b2246;
+        .result {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-right: 4px solid #667eea;
+            display: none;
         }
 
-        .plan-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            font-size: 8px;
-            background-color: #3b82f6;
-            padding: 4px 8px;
-            border-radius: 20px;
-            letter-spacing: 1px;
-            color: #ffffff;
-            text-transform: uppercase;
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
         }
 
-        .plan-title {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 8px;
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        .plan-price {
-            font-size: 18px;
-            font-weight: 700;
-            color: #3b82f6;
-            margin-bottom: 10px;
+        .result h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
         }
 
-        .plan-price small {
-            font-size: 10px;
-            color: #4f688a;
-        }
-
-        .plan-features {
-            font-size: 11px;
-            color: #a3b8cc;
-            margin-bottom: 12px;
+        .result p {
+            color: #555;
+            margin: 10px 0;
+            font-size: 1.05em;
             line-height: 1.6;
         }
 
-        .plan-btn {
-            background-color: #030a16;
-            border: 1px solid #112d5a;
-            color: #ffffff;
-            padding: 10px;
+        .result .label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        /* PRICING SECTION */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .pricing-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: #667eea;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .pricing-card.featured {
+            background: #667eea;
+            color: white;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #667eea;
+        }
+
+        .pricing-card.featured .price {
+            color: white;
+        }
+
+        .features {
+            text-align: right;
+            margin: 20px 0;
+        }
+
+        .features li {
+            list-style: none;
+            padding: 8px 0;
+            color: #666;
+        }
+
+        .pricing-card.featured .features li {
+            color: white;
+        }
+
+        .features li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .pricing-card.featured .features li:before {
+            color: white;
+        }
+
+        .btn-subscribe {
             width: 100%;
-            border-radius: 6px;
-            font-size: 11px;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
             cursor: pointer;
-            text-transform: uppercase;
-            font-weight: 600;
+            margin-top: 20px;
             transition: all 0.3s ease;
         }
 
-        .plan-btn:hover {
-            border-color: #3b82f6;
-            color: #3b82f6;
+        .btn-subscribe {
+            background: #667eea;
+            color: white;
         }
 
-        .pricing-card.popular .plan-btn {
-            background-color: #3b82f6;
-            border-color: #3b82f6;
-            color: #ffffff;
+        .btn-subscribe:hover {
+            background: #764ba2;
         }
 
-        .pricing-card.popular .plan-btn:hover {
-            background-color: #2563eb;
-            border-color: #2563eb;
+        .pricing-card.featured .btn-subscribe {
+            background: white;
+            color: #667eea;
         }
 
-        .page-section {
+        .pricing-card.featured .btn-subscribe:hover {
+            background: #f0f0f0;
+        }
+
+        /* COMPARE SECTION */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .compare-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .compare-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .compare-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .compare-table .feature {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .compare-table .check {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            nav {
+                flex-direction: column;
+            }
+
+            nav button {
+                width: 100%;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .compare-table {
+                font-size: 0.9em;
+            }
+
+            .compare-table th,
+            .compare-table td {
+                padding: 10px;
+            }
+        }
+
+        .loader {
             display: none;
-        }
-
-        .page-section.active {
-            display: block;
-        }
-
-        .result-message {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            display: none;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .result-message.show {
-            display: block;
-        }
-
-        .result-message.success {
-            background-color: #10b98130;
-            border: 1px solid #10b981;
-            color: #86efac;
-        }
-
-        .result-message.error {
-            background-color: #ef444430;
-            border: 1px solid #ef4444;
-            color: #fca5a5;
-        }
-
-        .result-message.loading {
-            background-color: #3b82f630;
-            border: 1px solid #3b82f6;
-            color: #93c5fd;
-        }
-
-        .single-input-group {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 20px;
-        }
-
-        .single-input-group label {
-            font-size: 9px;
-            color: #4f688a;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .security-notice {
-            background-color: #10b98130;
-            border: 1px solid #10b981;
-            color: #86efac;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 9px;
-            margin-top: 10px;
             text-align: center;
+            padding: 20px;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>🚚 LogisTrack</h1>
+            <p>نظام تتبع الشحنات الذكي</p>
+            <nav>
+                <button class="nav-btn active" onclick="switchTab('tracking')">تتبع الشحنة</button>
+                <button class="nav-btn" onclick="switchTab('compare')">مقارنة</button>
+                <button class="nav-btn" onclick="switchTab('pricing')">الأسعار</button>
+            </nav>
+        </header>
 
-    <div class="app-container">
-        <div class="app-header">
-            <h1>LOGISTRACK</h1>
-            <p>SMART PRICE INTELLIGENCE</p>
-        </div>
-
-        <div class="tabs">
-            <button class="tab active" data-tab="compare">COMPARE</button>
-            <button class="tab" data-tab="tracking">TRACKING</button>
-            <button class="tab" data-tab="pricing">PRICING</button>
-        </div>
-
-        <div class="main-content">
-            
-            <!-- قسم المقارنة -->
-            <div id="compare" class="page-section active">
-                <div class="form-card">
-                    <div class="card-title">• Shipment Parameters</div>
-                    <div class="inputs-grid">
-                        <div class="input-group">
-                            <label>Weight (KG)</label>
-                            <input type="number" id="weight" class="input-field" value="2" min="0.1">
-                        </div>
-                        <div class="input-group">
-                            <label>Destination Zone</label>
-                            <select id="zone" class="input-field">
-                                <option value="EU Zone">EU Zone</option>
-                                <option value="US Zone">US Zone</option>
-                                <option value="Asia">Asia</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Service Type</label>
-                            <select id="service" class="input-field">
-                                <option value="Standard">Standard</option>
-                                <option value="Express">Express</option>
-                                <option value="Overnight">Overnight</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="action-btn" id="searchBtn">Search</button>
-                    <div id="compare-result" class="result-message"></div>
-                    <div class="security-notice">✅ Data is processed securely without API keys</div>
-                </div>
-            </div>
-
-            <!-- قسم التتبع -->
-            <div id="tracking" class="page-section">
-                <div class="form-card">
-                    <div class="card-title">• Track Shipment</div>
-                    <div class="single-input-group">
-                        <label>Tracking Number / Order ID</label>
-                        <input type="text" id="tracking-id" class="input-field input-field-left" placeholder="e.g. LT-84920-EU" value="LT-77301-PL">
-                    </div>
-                    <button class="action-btn" id="trackBtn">Track Status</button>
-                    <div id="tracking-result" class="result-message"></div>
-                    <div class="security-notice">✅ Secure Backend API - No exposed credentials</div>
-                </div>
-            </div>
-
-            <!-- قسم الأسعار -->
-            <div id="pricing" class="page-section">
-                <div class="pricing-card">
-                    <div class="plan-title">Free Trial</div>
-                    <div class="plan-price">$0 <small>/ forever</small></div>
-                    <div class="plan-features">
-                        • 5 searches per month<br>
-                        • Standard support<br>
-                        • Basic carrier routing
-                    </div>
-                    <button class="plan-btn" data-plan="Free Trial" data-price="$0">Choose Plan</button>
-                </div>
+        <!-- TRACKING TAB -->
+        <div id="tracking" class="content active">
+            <div class="tracking-container">
+                <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">تتبع شحنتك الآن</h2>
                 
-                <div class="pricing-card popular">
-                    <div class="plan-badge">POPULAR</div>
-                    <div class="plan-title">Pro</div>
-                    <div class="plan-price">$29 <small>/ month</small></div>
-                    <div class="plan-features">
-                        • Unlimited searches<br>
-                        • Priority support<br>
-                        • Advanced routing<br>
-                        • API access
-                    </div>
-                    <button class="plan-btn" data-plan="Pro" data-price="$29">Choose Plan</button>
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="trackInput" 
+                        placeholder="أدخل رقم التتبع (مثال: LT-77301-PL)"
+                        autocomplete="off"
+                    >
+                    <button onclick="trackShipment()">🔍 ابحث</button>
                 </div>
 
-                <div class="pricing-card">
-                    <div class="plan-title">Enterprise</div>
-                    <div class="plan-price">Custom <small>/ negotiable</small></div>
-                    <div class="plan-features">
-                        • Custom solutions<br>
-                        • Dedicated support<br>
-                        • Full API access<br>
-                        • White-label options
-                    </div>
-                    <button class="plan-btn" data-plan="Enterprise" data-price="Custom">Contact Sales</button>
+                <div class="loader" id="loader">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px; color: #667eea;">جاري البحث...</p>
+                </div>
+
+                <div class="error" id="error"></div>
+
+                <div class="result" id="trackingResult">
+                    <h3>✅ تم العثور على الشحنة</h3>
+                    <div id="resultContent"></div>
                 </div>
             </div>
+        </div>
 
+        <!-- COMPARE TAB -->
+        <div id="compare" class="content">
+            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">مقارنة الخطط</h2>
+            
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>المميزات</th>
+                        <th>Basic</th>
+                        <th>Pro</th>
+                        <th>Enterprise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="feature">تتبع الشحنات</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td class="feature">عدد الشحنات</td>
+                        <td>10/شهر</td>
+                        <td class="check">100/شهر</td>
+                        <td class="check">غير محدود</td>
+                    </tr>
+                    <tr>
+                        <td class="feature">تقارير متقدمة</td>
+                        <td>❌</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td class="feature">دعم فني</td>
+                        <td>البريد الإلكتروني</td>
+                        <td class="check">البريد + الهاتف</td>
+                        <td class="check">24/7 مخصص</td>
+                    </tr>
+                    <tr>
+                        <td class="feature">واجهة برمجية (API)</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td class="feature">التكامل مع الأنظمة</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td class="check">✓</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PRICING TAB -->
+        <div id="pricing" class="content">
+            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">اختر خطتك</h2>
+            
+            <div class="pricing-grid">
+                <!-- Basic Plan -->
+                <div class="pricing-card">
+                    <h3>🔷 Basic</h3>
+                    <p style="color: #999;">مناسب للأفراد</p>
+                    <div class="price">$9<span style="font-size: 0.5em; color: #999;">/شهر</span></div>
+                    <ul class="features">
+                        <li>10 شحنات شهرية</li>
+                        <li>تتبع فوري</li>
+                        <li>دعم البريد الإلكتروني</li>
+                        <li>تنبيهات أساسية</li>
+                    </ul>
+                    <button class="btn-subscribe" onclick="subscribe('basic', 9)">ابدأ الآن</button>
+                </div>
+
+                <!-- Pro Plan -->
+                <div class="pricing-card featured">
+                    <span style="position: absolute; top: -15px; right: 20px; background: #764ba2; padding: 5px 15px; border-radius: 20px; color: white; font-size: 0.9em;">الأفضل</span>
+                    <h3>⚡ Pro</h3>
+                    <p>مناسب للشركات الصغيرة</p>
+                    <div class="price">$29<span style="font-size: 0.5em;">/شهر</span></div>
+                    <ul class="features">
+                        <li>100 شحنة شهرية</li>
+                        <li>تتبع فوري</li>
+                        <li>تقارير متقدمة</li>
+                        <li>دعم الهاتف</li>
+                        <li>تنبيهات مخصصة</li>
+                    </ul>
+                    <button class="btn-subscribe" onclick="subscribe('pro', 29)">اختر الآن</button>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="pricing-card">
+                    <h3>👑 Enterprise</h3>
+                    <p style="color: #999;">للمؤسسات الكبرى</p>
+                    <div class="price">$99<span style="font-size: 0.5em; color: #999;">/شهر</span></div>
+                    <ul class="features">
+                        <li>شحنات غير محدودة</li>
+                        <li>تتبع متقدم</li>
+                        <li>تقارير مخصصة</li>
+                        <li>دعم 24/7</li>
+                        <li>واجهة برمجية (API)</li>
+                        <li>تكامل كامل</li>
+                    </ul>
+                    <button class="btn-subscribe" onclick="subscribe('enterprise', 99)">التواصل معنا</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // ========================================
-        // 1. تبديل التبويبات
-        // ========================================
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabName = this.getAttribute('data-tab');
-                
-                // إزالة active من جميع التبويبات
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                
-                // إضافة active للتبويب المضغوط
-                this.classList.add('active');
-                
-                // إخفاء جميع الأقسام
-                document.querySelectorAll('.page-section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                
-                // إظهار القسم المختار
-                document.getElementById(tabName).classList.add('active');
-            });
-        });
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYqdxGHYXkh6H-mGPCZfOnP9f1F9Ff_Ew",
+            authDomain: "smart-logistics-f4f86.firebaseapp.com",
+            projectId: "smart-logistics-f4f86",
+            storageBucket: "smart-logistics-f4f86.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-        // ========================================
-        // 2. دالة عرض النتيجة (آمنة من XSS)
-        // ========================================
-        function showResult(element, message, type) {
-            // استخدام textContent بدلاً من innerHTML لتجنب XSS
-            element.textContent = message;
-            element.className = `result-message ${type} show`;
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Stripe Configuration
+        const stripe = Stripe('pk_test_51OBXXXXXXXXXXXXXXXXXXXXX'); // استبدل بـ مفتاحك
+
+        // Tab Switching
+        function switchTab(tab) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             
-            // إزالة الرسالة بعد 5 ثواني
-            setTimeout(() => {
-                element.classList.remove('show');
-            }, 5000);
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
         }
 
-        // ========================================
-        // 3. دالة البحث عن الأسعار (محلية - بدون API)
-        // ========================================
-        function performSearch() {
-            const weight = parseFloat(document.getElementById('weight').value);
-            const zone = document.getElementById('zone').value;
-            const service = document.getElementById('service').value;
-            const resultDiv = document.getElementById('compare-result');
+        // Track Shipment
+        async function trackShipment() {
+            const trackingNumber = document.getElementById('trackInput').value.trim();
+            const loader = document.getElementById('loader');
+            const result = document.getElementById('trackingResult');
+            const error = document.getElementById('error');
+            const resultContent = document.getElementById('resultContent');
 
-            // التحقق من صحة المدخلات
-            if (!weight || weight <= 0) {
-                showResult(resultDiv, '❌ Please enter a valid weight', 'error');
+            // Clear previous results
+            result.classList.remove('show');
+            error.classList.remove('show');
+
+            if (!trackingNumber) {
+                error.textContent = '⚠️ يرجى إدخال رقم التتبع';
+                error.classList.add('show');
                 return;
             }
-
-            // حساب السعر محلياً (بدون الاتصال بـ API)
-            const basePrice = {
-                'Standard': 5,
-                'Express': 10,
-                'Overnight': 20
-            };
-
-            const zoneMultiplier = {
-                'EU Zone': 1,
-                'US Zone': 1.5,
-                'Asia': 2
-            };
-
-            const price = (basePrice[service] || 5) * (zoneMultiplier[zone] || 1) * weight;
-            const message = `✅ Estimated Price: $${price.toFixed(2)}\nWeight: ${weight}kg\nZone: ${zone}\nService: ${service}`;
-            showResult(resultDiv, message, 'success');
-        }
-
-        // ========================================
-        // 4. دالة التتبع (Backend API آمن)
-        // ========================================
-        async function performTrack() {
-            const trackingId = document.getElementById('tracking-id').value.trim();
-            const resultDiv = document.getElementById('tracking-result');
-
-            // التحقق من صحة المدخل
-            if (!trackingId) {
-                showResult(resultDiv, '❌ Please enter a tracking number', 'error');
-                return;
-            }
-
-            if (trackingId.length < 3) {
-                showResult(resultDiv, '❌ Tracking number must be at least 3 characters', 'error');
-                return;
-            }
-
-            // عرض رسالة جاري التحميل
-            resultDiv.textContent = '⏳ Searching...';
-            resultDiv.className = 'result-message loading show';
 
             try {
-                // استدعاء Backend API (آمن - بدون مفاتيح في الـ Frontend)
-                const response = await fetch('/api/track', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        trackingNumber: trackingId
-                    })
+                loader.classList.add('show');
+
+                // البحث في Firestore
+                const querySnapshot = await db.collection('Shipment')
+                    .where('trackingNumber', '==', trackingNumber)
+                    .get();
+
+                loader.classList.remove('show');
+
+                if (querySnapshot.empty) {
+                    error.textContent = '❌ لم نجد شحنة بهذا الرقم. تحقق من الرقم وحاول مرة أخرى.';
+                    error.classList.add('show');
+                    return;
+                }
+
+                // عرض البيانات
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    resultContent.innerHTML = `
+                        <p>
+                            <span class="label">📦 رقم التتبع:</span><br>
+                            ${data.trackingNumber}
+                        </p>
+                        <p>
+                            <span class="label">🚚 حالة الشحنة:</span><br>
+                            ${data.status}
+                        </p>
+                        <p>
+                            <span class="label">📍 الموقع الحالي:</span><br>
+                            ${data.location}
+                        </p>
+                        <div class="status-badge">${data.status}</div>
+                    `;
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                result.classList.add('show');
 
-                const data = await response.json();
-
-                if (data.success && data.shipment) {
-                    const shipment = data.shipment;
-                    const message = `✅ Shipment Found\nTracking: ${trackingId}\nStatus: ${shipment.status}\nLocation: ${shipment.location}\nEstimated Delivery: ${shipment.estimatedDelivery}`;
-                    showResult(resultDiv, message, 'success');
-                } else {
-                    showResult(resultDiv, `❌ No shipment found for: ${trackingId}`, 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                
-                // إذا كان الـ Backend غير متاح، عرض بيانات تجريبية
-                if (trackingId === 'LT-77301-PL') {
-                    const message = `✅ Demo Data - Shipment Found\nTracking: ${trackingId}\nStatus: In Transit\nLocation: Distribution Center\nEstimated Delivery: 2-3 Days`;
-                    showResult(resultDiv, message, 'success');
-                } else {
-                    showResult(resultDiv, '❌ Connection error. Please try again later.', 'error');
-                }
+            } catch (err) {
+                loader.classList.remove('show');
+                console.error('Error:', err);
+                error.textContent = '❌ حدث خطأ في البحث. يرجى المحاولة لاحقاً.';
+                error.classList.add('show');
             }
         }
 
-        // ========================================
-        // 5. دالة اختيار الخطة
-        // ========================================
-        function choosePlan(planName, price) {
-            // عرض رسالة بأمان بدون استخدام innerHTML
-            alert(`Selected Plan: ${planName}\nPrice: ${price}\n\nProceeding to checkout...`);
+        // Subscribe Function
+        function subscribe(plan, price) {
+            alert(`شكراً! اخترت خطة ${plan} بسعر $${price}\n\nسيتم توجيهك إلى صفحة الدفع...`);
+            // بعدين نضيف Stripe checkout
         }
 
-        // ========================================
-        // 6. Event Listeners
-        // ========================================
-        document.getElementById('searchBtn').addEventListener('click', performSearch);
-        document.getElementById('trackBtn').addEventListener('click', performTrack);
-
-        // السماح بالبحث عند الضغط على Enter
-        document.getElementById('tracking-id').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                performTrack();
-            }
-        });
-
-        // أزرار الخطط
-        document.querySelectorAll('.plan-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const plan = this.getAttribute('data-plan');
-                const price = this.getAttribute('data-price');
-                choosePlan(plan, price);
-            });
+        // Allow Enter Key
+        document.getElementById('trackInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') trackShipment();
         });
     </script>
-
 </body>
-</html>
+                </html>
