@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistrack - Smart Price Intelligence</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #030a16;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 410px;
+            background-color: #051124;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid #0d2347;
+        }
+
+        .app-header {
+            background-color: #020813;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #0d2347;
+        }
+
+        .app-header h1 {
+            font-size: 16px;
+            letter-spacing: 2px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .app-header p {
+            font-size: 10px;
+            color: #4f688a;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #030a16;
+            border-bottom: 1px solid #0d2347;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 11px;
+            color: #4f688a;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        .tab.active {
+            color: #3b82f6;
+            background-color: #071731;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .form-card {
+            background-color: #071731;
+            border: 1px solid #112d5a;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 11px;
+            color: #3b82f6;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-align: left;
+            direction: ltr;
+        }
+
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            direction: ltr;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-size: 9px;
+            color: #4f688a;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .input-field {
+            background-color: #030a16;
+            border: 1px solid #112d5a;
+            color: #ffffff;
+            padding: 12px 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            outline: none;
+            width: 100%;
+        }
+
+        select.input-field {
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='10' height='6' viewBox='0 0 10 6'><path fill='%234f688a' d='M0 0l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 20px;
+        }
+
+        .search-btn {
+            background-color: #3b82f6;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .status-container {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .hexagon-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 15px auto;
+            border: 2px solid #112d5a;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        .status-text {
+            font-size: 11px;
+            color: #4f688a;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            line-height: 1.6;
+        }
+
+        /* حاوية استجابة الذكاء الاصطناعي المأخوذة من الكود الخاص بك */
+        .ai-response-box {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: #030a16;
+            border: 1px solid #3B9EFF33;
+            text-align: left;
+            direction: ltr;
+        }
+
+        /* خط التوهج (Glow line) */
+        .glow-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #1E2D42, transparent);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- الرأس -->
+        <div class="app-header">
+            <h1>LOGISTRACK</h1>
+            <p>SMART PRICE INTELLIGENCE</p>
+        </div>
+
+        <!-- التبويبات -->
+        <div class="tabs">
+            <div class="tab active">COMPARE</div>
+            <div class="tab">TRACKING</div>
+        </div>
+
+        <!-- المحتوى الأساسي -->
+        <div class="main-content">
+            <div class="form-card">
+                <div class="card-title">• Shipment Parameters</div>
+                
+                <div class="inputs-grid">
+                    <div class="input-group">
+                        <label>Weight (KG)</label>
+                        <input type="number" id="weight" class="input-field" value="2">
+                    </div>
+                    <div class="input-group">
+                        <label>Destination Zone</label>
+                        <select id="zone" class="input-field">
+                            <option value="EU">EU Zone</option>
+                            <option value="US">US Zone</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Service Type</label>
+                        <select id="service" class="input-field">
+                            <option value="St1">St1</option>
+                            <option value="Exp">Express</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="search-btn" onclick="performSearch()">Search</button>
+            </div>
+
+            <!-- منطقة التنبيه قبل البحث -->
+            <div class="status-container" id="statusArea">
+                <div class="hexagon-icon"></div>
+                <div class="status-text" id="statusText">Enter shipment details to<br>compare carriers</div>
+            </div>
+
+            <!-- حاوية استجابة الذكاء الاصطناعي (AI RESPONSE) المضافة حديثاً -->
+            <div class="ai-response-box" id="aiResponseBox">
+                <div style="font-size: 10px; color: #3B9EFF; letter-spacing: 2px; margin-bottom: 16px;">✦ AI RESPONSE</div>
+                <div id="aiResponseText" style="font-size: 13px; color: #C8D8E8; line-height: 1.8; white-space: pre-wrap;"></div>
+            </div>
+        </div>
+
+        <!-- الـ Footer المأخوذ من كود الـ React الخاص بك -->
+        <div class="glow-line" style="margin-top: 40px;"></div>
+        <div style="text-align: center; padding: 16px 24px; font-size: 9px; color: #1E2D42; letter-spacing: 2px; direction: ltr;">
+            LOGISTRACK v1.0 · SMART LOGISTICS INTELLIGENCE · POLAND & EU SHIPPING
+        </div>
+    </div>
+
+    <script>
+        function performSearch() {
+            const weight = document.getElementById('weight').value;
+            const zone = document.getElementById('zone').value;
+            const service = document.getElementById('service').value;
+            
+            const statusArea = document.getElementById('statusArea');
+            const aiBox = document.getElementById('aiResponseBox');
+            const aiText = document.getElementById('aiResponseText');
+
+            statusArea.style.display = "block";
+            document.getElementById('statusText').innerHTML = "Analyzing options with AI...";
+            aiBox.style.display = "none";
+
+            setTimeout(() => {
+                statusArea.style.display = "none"; // إخفاء علامة التحميل بعد المعالجة
+                
+                // توليد النص البرمجي التفاعلي داخل حاوية الـ AI Response
+                aiText.innerHTML = `Shipment verified for ${weight} KG targeting ${zone} via ${service}.\nOptimal Carrier: DHL Logistics EU.\nEstimated cost base: $${(weight * 11.4).toFixed(2)} USD.\nStatus: Ready for dispatch.`;
+                
+                aiBox.style.display = "block"; // إظهار نافذة الذكاء الاصطناعي كما في التصميم
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
