@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LogisTrack - نظام تتبع الشحنات</title>
+    <title>LogisTrack - Global Shipment Tracking</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
     <style>
         * {
             margin: 0;
@@ -32,25 +33,48 @@
             border-radius: 10px;
             margin-bottom: 30px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         header h1 {
             color: #667eea;
             font-size: 2.5em;
-            margin-bottom: 10px;
+        }
+
+        .currency-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .currency-selector select {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            background: white;
+            color: #667eea;
+            font-weight: bold;
         }
 
         header p {
             color: #666;
             font-size: 1.1em;
+            margin-bottom: 15px;
         }
 
         nav {
             display: flex;
             gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
             flex-wrap: wrap;
         }
 
@@ -145,7 +169,7 @@
             background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
-            border-right: 4px solid #667eea;
+            border-left: 4px solid #667eea;
             display: none;
         }
 
@@ -202,6 +226,7 @@
             text-align: center;
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            position: relative;
         }
 
         .pricing-card:hover {
@@ -231,8 +256,14 @@
             color: white;
         }
 
+        .currency-display {
+            font-size: 0.8em;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
         .features {
-            text-align: right;
+            text-align: left;
             margin: 20px 0;
         }
 
@@ -257,34 +288,62 @@
             color: white;
         }
 
-        .btn-subscribe {
-            width: 100%;
+        .payment-methods {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .payment-methods h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .payment-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .payment-btn {
             padding: 15px;
-            border: none;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
+            background: white;
+            cursor: pointer;
             font-size: 1em;
             font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .btn-subscribe {
-            background: #667eea;
-            color: white;
+        .payment-btn:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
         }
 
-        .btn-subscribe:hover {
-            background: #764ba2;
+        .payment-btn.stripe {
+            color: #635BFF;
+            border-color: #635BFF;
         }
 
-        .pricing-card.featured .btn-subscribe {
-            background: white;
-            color: #667eea;
+        .payment-btn.paypal {
+            color: #0070BA;
+            border-color: #0070BA;
         }
 
-        .pricing-card.featured .btn-subscribe:hover {
-            background: #f0f0f0;
+        .payment-btn.apple {
+            color: #000;
+            border-color: #000;
+        }
+
+        .payment-btn.google {
+            color: #4285F4;
+            border-color: #4285F4;
         }
 
         /* COMPARE SECTION */
@@ -292,13 +351,14 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            overflow-x: auto;
         }
 
         .compare-table th {
             background: #667eea;
             color: white;
             padding: 15px;
-            text-align: right;
+            text-align: left;
             font-weight: bold;
         }
 
@@ -327,6 +387,11 @@
                 font-size: 1.8em;
             }
 
+            .header-top {
+                flex-direction: column;
+                text-align: center;
+            }
+
             nav {
                 flex-direction: column;
             }
@@ -340,6 +405,10 @@
             }
 
             .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-buttons {
                 grid-template-columns: 1fr;
             }
 
@@ -390,44 +459,79 @@
         .error.show {
             display: block;
         }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        #paypal-button-container {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🚚 LogisTrack</h1>
-            <p>نظام تتبع الشحنات الذكي</p>
+            <div class="header-top">
+                <div>
+                    <h1>🚚 LogisTrack</h1>
+                    <p>Global Shipment Tracking System</p>
+                </div>
+                <div class="currency-selector">
+                    <label style="color: #667eea; font-weight: bold;">Currency:</label>
+                    <select id="currencySelect" onchange="changeCurrency()">
+                        <option value="USD">🇺🇸 USD ($)</option>
+                        <option value="EUR">🇪🇺 EUR (€)</option>
+                        <option value="GBP">🇬🇧 GBP (£)</option>
+                        <option value="JPY">🇯🇵 JPY (¥)</option>
+                        <option value="CNY">🇨🇳 CNY (¥)</option>
+                        <option value="AUD">🇦🇺 AUD ($)</option>
+                        <option value="CAD">🇨🇦 CAD ($)</option>
+                    </select>
+                </div>
+            </div>
+
             <nav>
-                <button class="nav-btn active" onclick="switchTab('tracking')">تتبع الشحنة</button>
-                <button class="nav-btn" onclick="switchTab('compare')">مقارنة</button>
-                <button class="nav-btn" onclick="switchTab('pricing')">الأسعار</button>
+                <button class="nav-btn active" onclick="switchTab('tracking')">Track Shipment</button>
+                <button class="nav-btn" onclick="switchTab('compare')">Compare Plans</button>
+                <button class="nav-btn" onclick="switchTab('pricing')">Pricing</button>
             </nav>
         </header>
 
         <!-- TRACKING TAB -->
         <div id="tracking" class="content active">
             <div class="tracking-container">
-                <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">تتبع شحنتك الآن</h2>
+                <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">Track Your Shipment</h2>
                 
                 <div class="input-group">
                     <input 
                         type="text" 
                         id="trackInput" 
-                        placeholder="أدخل رقم التتبع (مثال: LT-77301-PL)"
+                        placeholder="Enter tracking number (e.g., LT-77301-PL)"
                         autocomplete="off"
                     >
-                    <button onclick="trackShipment()">🔍 ابحث</button>
+                    <button onclick="trackShipment()">🔍 Search</button>
                 </div>
 
                 <div class="loader" id="loader">
                     <div class="spinner"></div>
-                    <p style="margin-top: 10px; color: #667eea;">جاري البحث...</p>
+                    <p style="margin-top: 10px; color: #667eea;">Searching...</p>
                 </div>
 
                 <div class="error" id="error"></div>
+                <div class="success" id="success"></div>
 
                 <div class="result" id="trackingResult">
-                    <h3>✅ تم العثور على الشحنة</h3>
+                    <h3>✅ Shipment Found</h3>
                     <div id="resultContent"></div>
                 </div>
             </div>
@@ -435,12 +539,12 @@
 
         <!-- COMPARE TAB -->
         <div id="compare" class="content">
-            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">مقارنة الخطط</h2>
+            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">Compare Plans</h2>
             
             <table class="compare-table">
                 <thead>
                     <tr>
-                        <th>المميزات</th>
+                        <th>Features</th>
                         <th>Basic</th>
                         <th>Pro</th>
                         <th>Enterprise</th>
@@ -448,37 +552,55 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="feature">تتبع الشحنات</td>
+                        <td class="feature">Shipment Tracking</td>
                         <td class="check">✓</td>
                         <td class="check">✓</td>
                         <td class="check">✓</td>
                     </tr>
                     <tr>
-                        <td class="feature">عدد الشحنات</td>
-                        <td>10/شهر</td>
-                        <td class="check">100/شهر</td>
-                        <td class="check">غير محدود</td>
+                        <td class="feature">Shipments/Month</td>
+                        <td>10</td>
+                        <td class="check">100</td>
+                        <td class="check">Unlimited</td>
                     </tr>
                     <tr>
-                        <td class="feature">تقارير متقدمة</td>
+                        <td class="feature">Advanced Reports</td>
                         <td>❌</td>
                         <td class="check">✓</td>
                         <td class="check">✓</td>
                     </tr>
                     <tr>
-                        <td class="feature">دعم فني</td>
-                        <td>البريد الإلكتروني</td>
-                        <td class="check">البريد + الهاتف</td>
-                        <td class="check">24/7 مخصص</td>
+                        <td class="feature">Multi-Currency Support</td>
+                        <td>❌</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
                     </tr>
                     <tr>
-                        <td class="feature">واجهة برمجية (API)</td>
+                        <td class="feature">Email Support</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td class="feature">Phone Support</td>
+                        <td>❌</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td class="feature">24/7 Support</td>
                         <td>❌</td>
                         <td>❌</td>
                         <td class="check">✓</td>
                     </tr>
                     <tr>
-                        <td class="feature">التكامل مع الأنظمة</td>
+                        <td class="feature">API Access</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td class="feature">System Integration</td>
                         <td>❌</td>
                         <td>❌</td>
                         <td class="check">✓</td>
@@ -489,159 +611,70 @@
 
         <!-- PRICING TAB -->
         <div id="pricing" class="content">
-            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">اختر خطتك</h2>
+            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">Choose Your Plan</h2>
             
             <div class="pricing-grid">
                 <!-- Basic Plan -->
                 <div class="pricing-card">
                     <h3>🔷 Basic</h3>
-                    <p style="color: #999;">مناسب للأفراد</p>
-                    <div class="price">$9<span style="font-size: 0.5em; color: #999;">/شهر</span></div>
+                    <p style="color: #999;">Perfect for Individuals</p>
+                    <div class="price">
+                        <span id="basic-price">$9</span>
+                        <div class="currency-display" id="basic-currency">/month</div>
+                    </div>
                     <ul class="features">
-                        <li>10 شحنات شهرية</li>
-                        <li>تتبع فوري</li>
-                        <li>دعم البريد الإلكتروني</li>
-                        <li>تنبيهات أساسية</li>
+                        <li>10 shipments per month</li>
+                        <li>Real-time tracking</li>
+                        <li>Email support</li>
+                        <li>Basic alerts</li>
                     </ul>
-                    <button class="btn-subscribe" onclick="subscribe('basic', 9)">ابدأ الآن</button>
+                    <div class="payment-methods">
+                        <button class="payment-btn stripe" onclick="openCheckout('basic', 9)">
+                            💳 Pay with Stripe
+                        </button>
+                        <button class="payment-btn paypal" onclick="openPayPal('basic', 9)">
+                            🅿️ Pay with PayPal
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Pro Plan -->
                 <div class="pricing-card featured">
-                    <span style="position: absolute; top: -15px; right: 20px; background: #764ba2; padding: 5px 15px; border-radius: 20px; color: white; font-size: 0.9em;">الأفضل</span>
+                    <div style="position: absolute; top: -15px; right: 20px; background: #764ba2; padding: 5px 15px; border-radius: 20px; color: white; font-size: 0.9em;">POPULAR</div>
                     <h3>⚡ Pro</h3>
-                    <p>مناسب للشركات الصغيرة</p>
-                    <div class="price">$29<span style="font-size: 0.5em;">/شهر</span></div>
+                    <p>Perfect for Small Businesses</p>
+                    <div class="price">
+                        <span id="pro-price">$29</span>
+                        <div class="currency-display">/month</div>
+                    </div>
                     <ul class="features">
-                        <li>100 شحنة شهرية</li>
-                        <li>تتبع فوري</li>
-                        <li>تقارير متقدمة</li>
-                        <li>دعم الهاتف</li>
-                        <li>تنبيهات مخصصة</li>
+                        <li>100 shipments per month</li>
+                        <li>Real-time tracking</li>
+                        <li>Advanced reports</li>
+                        <li>Phone support</li>
+                        <li>Custom alerts</li>
                     </ul>
-                    <button class="btn-subscribe" onclick="subscribe('pro', 29)">اختر الآن</button>
+                    <div class="payment-methods">
+                        <button class="payment-btn stripe" onclick="openCheckout('pro', 29)">
+                            💳 Pay with Stripe
+                        </button>
+                        <button class="payment-btn paypal" onclick="openPayPal('pro', 29)">
+                            🅿️ Pay with PayPal
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Enterprise Plan -->
                 <div class="pricing-card">
                     <h3>👑 Enterprise</h3>
-                    <p style="color: #999;">للمؤسسات الكبرى</p>
-                    <div class="price">$99<span style="font-size: 0.5em; color: #999;">/شهر</span></div>
+                    <p style="color: #999;">For Large Organizations</p>
+                    <div class="price">
+                        <span id="enterprise-price">$99</span>
+                        <div class="currency-display">/month</div>
+                    </div>
                     <ul class="features">
-                        <li>شحنات غير محدودة</li>
-                        <li>تتبع متقدم</li>
-                        <li>تقارير مخصصة</li>
-                        <li>دعم 24/7</li>
-                        <li>واجهة برمجية (API)</li>
-                        <li>تكامل كامل</li>
-                    </ul>
-                    <button class="btn-subscribe" onclick="subscribe('enterprise', 99)">التواصل معنا</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCYqdxGHYXkh6H-mGPCZfOnP9f1F9Ff_Ew",
-            authDomain: "smart-logistics-f4f86.firebaseapp.com",
-            projectId: "smart-logistics-f4f86",
-            storageBucket: "smart-logistics-f4f86.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Stripe Configuration
-        const stripe = Stripe('pk_test_51OBXXXXXXXXXXXXXXXXXXXXX'); // استبدل بـ مفتاحك
-
-        // Tab Switching
-        function switchTab(tab) {
-            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            
-            document.getElementById(tab).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        // Track Shipment
-        async function trackShipment() {
-            const trackingNumber = document.getElementById('trackInput').value.trim();
-            const loader = document.getElementById('loader');
-            const result = document.getElementById('trackingResult');
-            const error = document.getElementById('error');
-            const resultContent = document.getElementById('resultContent');
-
-            // Clear previous results
-            result.classList.remove('show');
-            error.classList.remove('show');
-
-            if (!trackingNumber) {
-                error.textContent = '⚠️ يرجى إدخال رقم التتبع';
-                error.classList.add('show');
-                return;
-            }
-
-            try {
-                loader.classList.add('show');
-
-                // البحث في Firestore
-                const querySnapshot = await db.collection('Shipment')
-                    .where('trackingNumber', '==', trackingNumber)
-                    .get();
-
-                loader.classList.remove('show');
-
-                if (querySnapshot.empty) {
-                    error.textContent = '❌ لم نجد شحنة بهذا الرقم. تحقق من الرقم وحاول مرة أخرى.';
-                    error.classList.add('show');
-                    return;
-                }
-
-                // عرض البيانات
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    resultContent.innerHTML = `
-                        <p>
-                            <span class="label">📦 رقم التتبع:</span><br>
-                            ${data.trackingNumber}
-                        </p>
-                        <p>
-                            <span class="label">🚚 حالة الشحنة:</span><br>
-                            ${data.status}
-                        </p>
-                        <p>
-                            <span class="label">📍 الموقع الحالي:</span><br>
-                            ${data.location}
-                        </p>
-                        <div class="status-badge">${data.status}</div>
-                    `;
-                });
-
-                result.classList.add('show');
-
-            } catch (err) {
-                loader.classList.remove('show');
-                console.error('Error:', err);
-                error.textContent = '❌ حدث خطأ في البحث. يرجى المحاولة لاحقاً.';
-                error.classList.add('show');
-            }
-        }
-
-        // Subscribe Function
-        function subscribe(plan, price) {
-            alert(`شكراً! اخترت خطة ${plan} بسعر $${price}\n\nسيتم توجيهك إلى صفحة الدفع...`);
-            // بعدين نضيف Stripe checkout
-        }
-
-        // Allow Enter Key
-        document.getElementById('trackInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') trackShipment();
-        });
-    </script>
-</body>
-                </html>
+                        <li>Unlimited shipments</li>
+                        <li>Advanced tracking</li>
+                        <li>Custom reports</li>
+                        <li>24/7 support</li>
+                        
