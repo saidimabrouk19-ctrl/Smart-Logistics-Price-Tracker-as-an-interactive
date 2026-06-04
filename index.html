@@ -173,14 +173,19 @@
             margin-top: 15px;
         }
 
-        .action-btn:hover {
+        .action-btn:hover:not(:disabled) {
             background-color: #2563eb;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
         }
 
-        .action-btn:active {
+        .action-btn:active:not(:disabled) {
             transform: translateY(0);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .pricing-card {
@@ -284,6 +289,8 @@
             border-radius: 8px;
             font-size: 12px;
             display: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .result-message.show {
@@ -302,6 +309,12 @@
             color: #fca5a5;
         }
 
+        .result-message.loading {
+            background-color: #3b82f630;
+            border: 1px solid #3b82f6;
+            color: #93c5fd;
+        }
+
         .single-input-group {
             display: flex;
             flex-direction: column;
@@ -314,6 +327,17 @@
             margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        .security-notice {
+            background-color: #10b98130;
+            border: 1px solid #10b981;
+            color: #86efac;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            margin-top: 10px;
+            text-align: center;
         }
     </style>
 </head>
@@ -361,6 +385,7 @@
                     </div>
                     <button class="action-btn" id="searchBtn">Search</button>
                     <div id="compare-result" class="result-message"></div>
+                    <div class="security-notice">✅ Data is processed securely without API keys</div>
                 </div>
             </div>
 
@@ -374,6 +399,7 @@
                     </div>
                     <button class="action-btn" id="trackBtn">Track Status</button>
                     <div id="tracking-result" class="result-message"></div>
+                    <div class="security-notice">✅ Secure Backend API - No exposed credentials</div>
                 </div>
             </div>
 
@@ -420,7 +446,9 @@
     </div>
 
     <script>
-        // تبديل التبويبات
+        // ========================================
+        // 1. تبديل التبويبات
+        // ========================================
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 const tabName = this.getAttribute('data-tab');
@@ -441,38 +469,36 @@
             });
         });
 
-        // زر البحث
-        document.getElementById('searchBtn').addEventListener('click', function() {
-            performSearch();
-        });
+        // ========================================
+        // 2. دالة عرض النتيجة (آمنة من XSS)
+        // ========================================
+        function showResult(element, message, type) {
+            // استخدام textContent بدلاً من innerHTML لتجنب XSS
+            element.textContent = message;
+            element.className = `result-message ${type} show`;
+            
+            // إزالة الرسالة بعد 5 ثواني
+            setTimeout(() => {
+                element.classList.remove('show');
+            }, 5000);
+        }
 
-        // زر التتبع
-        document.getElementById('trackBtn').addEventListener('click', function() {
-            performTrack();
-        });
-
-        // أزرار الخطط
-        document.querySelectorAll('.plan-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const plan = this.getAttribute('data-plan');
-                const price = this.getAttribute('data-price');
-                choosePlan(plan, price);
-            });
-        });
-
-        // دالة البحث عن الأسعار
+        // ========================================
+        // 3. دالة البحث عن الأسعار (محلية - بدون API)
+        // ========================================
         function performSearch() {
             const weight = parseFloat(document.getElementById('weight').value);
             const zone = document.getElementById('zone').value;
             const service = document.getElementById('service').value;
             const resultDiv = document.getElementById('compare-result');
 
+            // التحقق من صحة المدخلات
             if (!weight || weight <= 0) {
                 showResult(resultDiv, '❌ Please enter a valid weight', 'error');
                 return;
             }
 
-            // حساب السعر
+            // حساب السعر محلياً (بدون الاتصال بـ API)
             const basePrice = {
                 'Standard': 5,
                 'Express': 10,
@@ -486,91 +512,100 @@
             };
 
             const price = (basePrice[service] || 5) * (zoneMultiplier[zone] || 1) * weight;
-            const message = `✅ Estimated Price: $${price.toFixed(2)} for ${weight}kg to ${zone} via ${service}`;
+            const message = `✅ Estimated Price: $${price.toFixed(2)}\nWeight: ${weight}kg\nZone: ${zone}\nService: ${service}`;
             showResult(resultDiv, message, 'success');
         }
 
-        // دالة التتبع
-        function performTrack() {
+        // ========================================
+        // 4. دالة التتبع (Backend API آمن)
+        // ========================================
+        async function performTrack() {
             const trackingId = document.getElementById('tracking-id').value.trim();
             const resultDiv = document.getElementById('tracking-result');
 
+            // التحقق من صحة المدخل
             if (!trackingId) {
                 showResult(resultDiv, '❌ Please enter a tracking number', 'error');
                 return;
             }
 
-            const message = `✅ Tracking ${trackingId}: In Transit - Est. Delivery: 2-3 Days`;
-            showResult(resultDiv, message, 'success');
+            if (trackingId.length < 3) {
+                showResult(resultDiv, '❌ Tracking number must be at least 3 characters', 'error');
+                return;
+            }
+
+            // عرض رسالة جاري التحميل
+            resultDiv.textContent = '⏳ Searching...';
+            resultDiv.className = 'result-message loading show';
+
+            try {
+                // استدعاء Backend API (آمن - بدون مفاتيح في الـ Frontend)
+                const response = await fetch('/api/track', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        trackingNumber: trackingId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.shipment) {
+                    const shipment = data.shipment;
+                    const message = `✅ Shipment Found\nTracking: ${trackingId}\nStatus: ${shipment.status}\nLocation: ${shipment.location}\nEstimated Delivery: ${shipment.estimatedDelivery}`;
+                    showResult(resultDiv, message, 'success');
+                } else {
+                    showResult(resultDiv, `❌ No shipment found for: ${trackingId}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                
+                // إذا كان الـ Backend غير متاح، عرض بيانات تجريبية
+                if (trackingId === 'LT-77301-PL') {
+                    const message = `✅ Demo Data - Shipment Found\nTracking: ${trackingId}\nStatus: In Transit\nLocation: Distribution Center\nEstimated Delivery: 2-3 Days`;
+                    showResult(resultDiv, message, 'success');
+                } else {
+                    showResult(resultDiv, '❌ Connection error. Please try again later.', 'error');
+                }
+            }
         }
 
-        // دالة اختيار الخطة
+        // ========================================
+        // 5. دالة اختيار الخطة
+        // ========================================
         function choosePlan(planName, price) {
-            alert(`✓ Selected Plan: ${planName}\nPrice: ${price}\n\nProceeding to checkout...`);
+            // عرض رسالة بأمان بدون استخدام innerHTML
+            alert(`Selected Plan: ${planName}\nPrice: ${price}\n\nProceeding to checkout...`);
         }
 
-        // دالة عرض النتيجة
-        function showResult(element, message, type) {
-            element.textContent = message;
-            element.className = `result-message ${type} show`;
-            
-            // إزالة الرسالة بعد 5 ثواني
-            setTimeout(() => {
-                element.classList.remove('show');
-            }, 5000);
-        }
+        // ========================================
+        // 6. Event Listeners
+        // ========================================
+        document.getElementById('searchBtn').addEventListener('click', performSearch);
+        document.getElementById('trackBtn').addEventListener('click', performTrack);
+
+        // السماح بالبحث عند الضغط على Enter
+        document.getElementById('tracking-id').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                performTrack();
+            }
+        });
+
+        // أزرار الخطط
+        document.querySelectorAll('.plan-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const plan = this.getAttribute('data-plan');
+                const price = this.getAttribute('data-price');
+                choosePlan(plan, price);
+            });
+        });
     </script>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyCYqdxGHYXkh6H-mGbrABCCY5C668Mcuxw",
-    authDomain: "smart-logistics-f4f86.firebaseapp.com",
-    projectId: "smart-logistics-f4f86",
-    storageBucket: "smart-logistics-f4f86.firebasestorage.app",
-    messagingSenderId: "227224904315",
-    appId: "1:227224904315:web:62f74fb778562111e578de",
-    measurementId: "G-RNWVXQW7ZW"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>// استدعاء وظائف قاعدة البيانات
-import { getFirestore, collection, query, where, getDocs } from "https://gstatic.com";
-const db = getFirestore(app);
-
-// دالة تتبع الشحنات الحية
-window.trackShipment = async function() {
-  const trackingInput = document.getElementById("trackingId")?.value || "LT-77301-PL"; 
-  const resultDiv = document.getElementById("trackingResult");
-  
-  if(!resultDiv) return;
-  resultDiv.innerHTML = "جاري البحث في قاعدة البيانات...";
-
-  try {
-      const q = query(collection(db, "shipments"), where("trackingNumber", "==", trackingInput));
-      const querySnapshot = await getDocs(q);
-      
-      if (!querySnapshot.empty) {
-          querySnapshot.forEach((doc) => {
-              const data = doc.data();
-              resultDiv.innerHTML = `حالة الشحنة: <b>${data.status}</b> | الموقع: ${data.location}`;
-          });
-      } else {
-          resultDiv.innerHTML = "رقم الشحنة غير موجود في السجلات.";
-      }
-  } catch (error) {
-      resultDiv.innerHTML = "حدث خطأ أثناء الاتصال بالخادم.";
-      console.error(error);
-  }
-}
-</script>
 </body>
 </html>
