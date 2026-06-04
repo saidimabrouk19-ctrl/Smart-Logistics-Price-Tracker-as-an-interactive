@@ -70,12 +70,18 @@
             letter-spacing: 1px;
             font-weight: 600;
             transition: all 0.2s ease;
+            border: none;
+            background: none;
         }
 
         .tab.active {
             color: #3b82f6;
             background-color: #071731;
             border-bottom: 2px solid #3b82f6;
+        }
+
+        .tab:hover {
+            color: #3b82f6;
         }
 
         .main-content {
@@ -105,13 +111,12 @@
             margin-bottom: 20px;
         }
 
-        .single-input-group {
+        .input-group {
             display: flex;
             flex-direction: column;
-            margin-bottom: 20px;
         }
 
-        .single-input-group label, .input-group label {
+        .input-group label {
             font-size: 9px;
             color: #4f688a;
             margin-bottom: 6px;
@@ -123,12 +128,18 @@
             background-color: #030a16;
             border: 1px solid #112d5a;
             color: #ffffff;
-            padding: 12px 6px;
+            padding: 12px 8px;
             border-radius: 8px;
             font-size: 13px;
             text-align: center;
             outline: none;
             width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
         }
 
         .input-field-left {
@@ -139,10 +150,11 @@
         select.input-field {
             appearance: none;
             cursor: pointer;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%234f688a' d='M0 0l5 5 5-5z'/></svg>");
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f688a' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
-            background-position: right 6px center;
-            padding-right: 15px;
+            background-position: right 8px center;
+            background-size: 16px;
+            padding-right: 30px;
         }
 
         .action-btn {
@@ -158,52 +170,17 @@
             cursor: pointer;
             text-transform: uppercase;
             transition: all 0.3s ease;
+            margin-top: 15px;
         }
 
         .action-btn:hover {
             background-color: #2563eb;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
         }
 
-        .status-container {
-            text-align: center;
-            padding: 20px 10px;
-        }
-
-        .hexagon-icon {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto 15px auto;
-            border: 2px solid #112d5a;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-        }
-
-        .status-text {
-            font-size: 11px;
-            color: #4f688a;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            line-height: 1.6;
-        }
-
-        .ai-response-box {
-            display: none;
-            margin-top: 15px;
-            padding: 20px;
-            border-radius: 12px;
-            background-color: #3B9EFF11;
-            border: 1px solid #3B9EFF33;
-            text-align: left;
-        }
-
-        .ai-response-box.show {
-            display: block;
-        }
-
-        .glow-line {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #1E2D42, transparent);
-            width: 100%;
+        .action-btn:active {
+            transform: translateY(0);
         }
 
         .pricing-card {
@@ -212,8 +189,12 @@
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 12px;
-            text-align: left;
             position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            border-color: #3b82f6;
         }
 
         .pricing-card.popular {
@@ -227,36 +208,43 @@
             right: 12px;
             font-size: 8px;
             background-color: #3b82f6;
-            padding: 2px 6px;
+            padding: 4px 8px;
             border-radius: 20px;
             letter-spacing: 1px;
             color: #ffffff;
+            text-transform: uppercase;
         }
 
         .plan-title {
             font-size: 14px;
             font-weight: 700;
+            margin-bottom: 8px;
         }
 
         .plan-price {
             font-size: 18px;
             font-weight: 700;
             color: #3b82f6;
-            margin: 5px 0;
+            margin-bottom: 10px;
+        }
+
+        .plan-price small {
+            font-size: 10px;
+            color: #4f688a;
         }
 
         .plan-features {
             font-size: 11px;
             color: #a3b8cc;
-            margin-bottom: 10px;
-            line-height: 1.4;
+            margin-bottom: 12px;
+            line-height: 1.6;
         }
 
         .plan-btn {
             background-color: #030a16;
             border: 1px solid #112d5a;
             color: #ffffff;
-            padding: 8px;
+            padding: 10px;
             width: 100%;
             border-radius: 6px;
             font-size: 11px;
@@ -273,33 +261,59 @@
 
         .pricing-card.popular .plan-btn {
             background-color: #3b82f6;
-            border: none;
+            border-color: #3b82f6;
             color: #ffffff;
         }
 
         .pricing-card.popular .plan-btn:hover {
             background-color: #2563eb;
+            border-color: #2563eb;
         }
 
         .page-section {
             display: none;
         }
 
-        .page-section.active-section {
+        .page-section.active {
             display: block;
         }
 
-        .success-message {
+        .result-message {
+            margin-top: 15px;
             padding: 12px;
-            background-color: #10b981;
             border-radius: 8px;
-            margin-top: 10px;
             font-size: 12px;
             display: none;
         }
 
-        .success-message.show {
+        .result-message.show {
             display: block;
+        }
+
+        .result-message.success {
+            background-color: #10b98130;
+            border: 1px solid #10b981;
+            color: #86efac;
+        }
+
+        .result-message.error {
+            background-color: #ef444430;
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+        }
+
+        .single-input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .single-input-group label {
+            font-size: 9px;
+            color: #4f688a;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -312,15 +326,15 @@
         </div>
 
         <div class="tabs">
-            <div class="tab active" id="tab-compare" onclick="switchTab('compare')">COMPARE</div>
-            <div class="tab" id="tab-tracking" onclick="switchTab('tracking')">TRACKING</div>
-            <div class="tab" id="tab-pricing" onclick="switchTab('pricing')">PRICING</div>
+            <button class="tab active" data-tab="compare">COMPARE</button>
+            <button class="tab" data-tab="tracking">TRACKING</button>
+            <button class="tab" data-tab="pricing">PRICING</button>
         </div>
 
         <div class="main-content">
             
-            <!-- قسم المقارنة وحساب الأسعار -->
-            <div id="section-compare" class="page-section active-section">
+            <!-- قسم المقارنة -->
+            <div id="compare" class="page-section active">
                 <div class="form-card">
                     <div class="card-title">• Shipment Parameters</div>
                     <div class="inputs-grid">
@@ -345,46 +359,60 @@
                             </select>
                         </div>
                     </div>
-                    <button class="action-btn" onclick="performSearch()">Search</button>
-                    <div id="search-result" class="success-message"></div>
+                    <button class="action-btn" id="searchBtn">Search</button>
+                    <div id="compare-result" class="result-message"></div>
                 </div>
             </div>
 
             <!-- قسم التتبع -->
-            <div id="section-tracking" class="page-section">
+            <div id="tracking" class="page-section">
                 <div class="form-card">
                     <div class="card-title">• Track Shipment</div>
                     <div class="single-input-group">
                         <label>Tracking Number / Order ID</label>
                         <input type="text" id="tracking-id" class="input-field input-field-left" placeholder="e.g. LT-84920-EU" value="LT-77301-PL">
                     </div>
-                    <button class="action-btn" onclick="performTrack()">Track Status</button>
-                    <div id="track-result" class="success-message"></div>
+                    <button class="action-btn" id="trackBtn">Track Status</button>
+                    <div id="tracking-result" class="result-message"></div>
                 </div>
             </div>
 
-            <!-- قسم خطط الأسعار والاشتراكات المالية -->
-            <div id="section-pricing" class="page-section">
+            <!-- قسم الأسعار -->
+            <div id="pricing" class="page-section">
                 <div class="pricing-card">
                     <div class="plan-title">Free Trial</div>
-                    <div class="plan-price">$0 <span style="font-size:10px; color:#4f688a;">/ forever</span></div>
-                    <div class="plan-features">• 5 searches per month<br>• Standard support<br>• Basic carrier routing</div>
-                    <button class="plan-btn" onclick="choosePlan('Free Trial')">Choose Plan</button>
+                    <div class="plan-price">$0 <small>/ forever</small></div>
+                    <div class="plan-features">
+                        • 5 searches per month<br>
+                        • Standard support<br>
+                        • Basic carrier routing
+                    </div>
+                    <button class="plan-btn" data-plan="Free Trial" data-price="$0">Choose Plan</button>
                 </div>
                 
                 <div class="pricing-card popular">
                     <div class="plan-badge">POPULAR</div>
                     <div class="plan-title">Pro</div>
-                    <div class="plan-price">$29 <span style="font-size:10px; color:#4f688a;">/ month</span></div>
-                    <div class="plan-features">• Unlimited searches<br>• Priority support<br>• Advanced routing<br>• API access</div>
-                    <button class="plan-btn" onclick="choosePlan('Pro')">Choose Plan</button>
+                    <div class="plan-price">$29 <small>/ month</small></div>
+                    <div class="plan-features">
+                        • Unlimited searches<br>
+                        • Priority support<br>
+                        • Advanced routing<br>
+                        • API access
+                    </div>
+                    <button class="plan-btn" data-plan="Pro" data-price="$29">Choose Plan</button>
                 </div>
 
                 <div class="pricing-card">
                     <div class="plan-title">Enterprise</div>
-                    <div class="plan-price">Custom</div>
-                    <div class="plan-features">• Custom solutions<br>• Dedicated support<br>• API access<br>• White-label options</div>
-                    <button class="plan-btn" onclick="choosePlan('Enterprise')">Contact Sales</button>
+                    <div class="plan-price">Custom <small>/ negotiable</small></div>
+                    <div class="plan-features">
+                        • Custom solutions<br>
+                        • Dedicated support<br>
+                        • Full API access<br>
+                        • White-label options
+                    </div>
+                    <button class="plan-btn" data-plan="Enterprise" data-price="Custom">Contact Sales</button>
                 </div>
             </div>
 
@@ -392,35 +420,59 @@
     </div>
 
     <script>
-        // تبديل بين التبويبات
-        function switchTab(tabName) {
-            // إخفاء جميع الأقسام
-            document.querySelectorAll('.page-section').forEach(section => {
-                section.classList.remove('active-section');
+        // تبديل التبويبات
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // إزالة active من جميع التبويبات
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                
+                // إضافة active للتبويب المضغوط
+                this.classList.add('active');
+                
+                // إخفاء جميع الأقسام
+                document.querySelectorAll('.page-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // إظهار القسم المختار
+                document.getElementById(tabName).classList.add('active');
             });
-            
-            // إلغاء تفعيل جميع التبويبات
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
+        });
+
+        // زر البحث
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            performSearch();
+        });
+
+        // زر التتبع
+        document.getElementById('trackBtn').addEventListener('click', function() {
+            performTrack();
+        });
+
+        // أزرار الخطط
+        document.querySelectorAll('.plan-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const plan = this.getAttribute('data-plan');
+                const price = this.getAttribute('data-price');
+                choosePlan(plan, price);
             });
-            
-            // إظهار القسم المختار وتفعيل التبويب
-            document.getElementById(`section-${tabName}`).classList.add('active-section');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-        }
+        });
 
         // دالة البحث عن الأسعار
         function performSearch() {
-            const weight = document.getElementById('weight').value;
+            const weight = parseFloat(document.getElementById('weight').value);
             const zone = document.getElementById('zone').value;
             const service = document.getElementById('service').value;
-            
+            const resultDiv = document.getElementById('compare-result');
+
             if (!weight || weight <= 0) {
-                alert('Please enter a valid weight');
+                showResult(resultDiv, '❌ Please enter a valid weight', 'error');
                 return;
             }
 
-            // محاكاة حساب السعر
+            // حساب السعر
             const basePrice = {
                 'Standard': 5,
                 'Express': 10,
@@ -433,35 +485,39 @@
                 'Asia': 2
             };
 
-            const price = basePrice[service] * zoneMultiplier[zone] * weight;
-            
-            const resultDiv = document.getElementById('search-result');
-            resultDiv.innerHTML = `✓ Estimated Price: $${price.toFixed(2)} for ${weight}kg to ${zone} via ${service} shipping`;
-            resultDiv.classList.add('show');
-
-            console.log('Search:', { weight, zone, service, price });
+            const price = (basePrice[service] || 5) * (zoneMultiplier[zone] || 1) * weight;
+            const message = `✅ Estimated Price: $${price.toFixed(2)} for ${weight}kg to ${zone} via ${service}`;
+            showResult(resultDiv, message, 'success');
         }
 
         // دالة التتبع
         function performTrack() {
-            const trackingId = document.getElementById('tracking-id').value;
-            
-            if (!trackingId.trim()) {
-                alert('Please enter a tracking number');
+            const trackingId = document.getElementById('tracking-id').value.trim();
+            const resultDiv = document.getElementById('tracking-result');
+
+            if (!trackingId) {
+                showResult(resultDiv, '❌ Please enter a tracking number', 'error');
                 return;
             }
 
-            const resultDiv = document.getElementById('track-result');
-            resultDiv.innerHTML = `✓ Tracking ${trackingId}: In Transit - Estimated Delivery: 2-3 Business Days`;
-            resultDiv.classList.add('show');
-
-            console.log('Tracking:', trackingId);
+            const message = `✅ Tracking ${trackingId}: In Transit - Est. Delivery: 2-3 Days`;
+            showResult(resultDiv, message, 'success');
         }
 
         // دالة اختيار الخطة
-        function choosePlan(planName) {
-            alert(`You selected: ${planName} plan. Please complete your purchase.`);
-            console.log('Selected Plan:', planName);
+        function choosePlan(planName, price) {
+            alert(`✓ Selected Plan: ${planName}\nPrice: ${price}\n\nProceeding to checkout...`);
+        }
+
+        // دالة عرض النتيجة
+        function showResult(element, message, type) {
+            element.textContent = message;
+            element.className = `result-message ${type} show`;
+            
+            // إزالة الرسالة بعد 5 ثواني
+            setTimeout(() => {
+                element.classList.remove('show');
+            }, 5000);
         }
     </script>
 
