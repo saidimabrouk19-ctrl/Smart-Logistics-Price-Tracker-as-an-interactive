@@ -139,7 +139,7 @@
         select.input-field {
             appearance: none;
             cursor: pointer;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='10' height='6' viewBox='0 0 10 6'><path fill='%234f688a' d='M0 0l5 5 5-5z'/></svg>");
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%234f688a' d='M0 0l5 5 5-5z'/></svg>");
             background-repeat: no-repeat;
             background-position: right 6px center;
             padding-right: 15px;
@@ -157,6 +157,12 @@
             letter-spacing: 1px;
             cursor: pointer;
             text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
         }
 
         .status-container {
@@ -190,6 +196,10 @@
             text-align: left;
         }
 
+        .ai-response-box.show {
+            display: block;
+        }
+
         .glow-line {
             height: 1px;
             background: linear-gradient(90deg, transparent, #1E2D42, transparent);
@@ -205,10 +215,12 @@
             text-align: left;
             position: relative;
         }
+
         .pricing-card.popular {
             border-color: #3b82f6;
             background-color: #0b2246;
         }
+
         .plan-badge {
             position: absolute;
             top: 12px;
@@ -218,23 +230,28 @@
             padding: 2px 6px;
             border-radius: 20px;
             letter-spacing: 1px;
+            color: #ffffff;
         }
+
         .plan-title {
             font-size: 14px;
             font-weight: 700;
         }
+
         .plan-price {
             font-size: 18px;
             font-weight: 700;
             color: #3b82f6;
             margin: 5px 0;
         }
+
         .plan-features {
             font-size: 11px;
             color: #a3b8cc;
             margin-bottom: 10px;
             line-height: 1.4;
         }
+
         .plan-btn {
             background-color: #030a16;
             border: 1px solid #112d5a;
@@ -246,16 +263,42 @@
             cursor: pointer;
             text-transform: uppercase;
             font-weight: 600;
+            transition: all 0.3s ease;
         }
+
+        .plan-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
         .pricing-card.popular .plan-btn {
             background-color: #3b82f6;
             border: none;
+            color: #ffffff;
+        }
+
+        .pricing-card.popular .plan-btn:hover {
+            background-color: #2563eb;
         }
 
         .page-section {
             display: none;
         }
+
         .page-section.active-section {
+            display: block;
+        }
+
+        .success-message {
+            padding: 12px;
+            background-color: #10b981;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .success-message.show {
             display: block;
         }
     </style>
@@ -283,24 +326,27 @@
                     <div class="inputs-grid">
                         <div class="input-group">
                             <label>Weight (KG)</label>
-                            <input type="number" id="weight" class="input-field" value="2">
+                            <input type="number" id="weight" class="input-field" value="2" min="0.1">
                         </div>
                         <div class="input-group">
                             <label>Destination Zone</label>
                             <select id="zone" class="input-field">
                                 <option value="EU Zone">EU Zone</option>
-                                <option value="US Zon">US Zon</option>
+                                <option value="US Zone">US Zone</option>
+                                <option value="Asia">Asia</option>
                             </select>
                         </div>
                         <div class="input-group">
                             <label>Service Type</label>
                             <select id="service" class="input-field">
-                                <option value="St1">St1</option>
+                                <option value="Standard">Standard</option>
                                 <option value="Express">Express</option>
+                                <option value="Overnight">Overnight</option>
                             </select>
                         </div>
                     </div>
                     <button class="action-btn" onclick="performSearch()">Search</button>
+                    <div id="search-result" class="success-message"></div>
                 </div>
             </div>
 
@@ -313,6 +359,7 @@
                         <input type="text" id="tracking-id" class="input-field input-field-left" placeholder="e.g. LT-84920-EU" value="LT-77301-PL">
                     </div>
                     <button class="action-btn" onclick="performTrack()">Track Status</button>
+                    <div id="track-result" class="success-message"></div>
                 </div>
             </div>
 
@@ -322,3 +369,101 @@
                     <div class="plan-title">Free Trial</div>
                     <div class="plan-price">$0 <span style="font-size:10px; color:#4f688a;">/ forever</span></div>
                     <div class="plan-features">• 5 searches per month<br>• Standard support<br>• Basic carrier routing</div>
+                    <button class="plan-btn" onclick="choosePlan('Free Trial')">Choose Plan</button>
+                </div>
+                
+                <div class="pricing-card popular">
+                    <div class="plan-badge">POPULAR</div>
+                    <div class="plan-title">Pro</div>
+                    <div class="plan-price">$29 <span style="font-size:10px; color:#4f688a;">/ month</span></div>
+                    <div class="plan-features">• Unlimited searches<br>• Priority support<br>• Advanced routing<br>• API access</div>
+                    <button class="plan-btn" onclick="choosePlan('Pro')">Choose Plan</button>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="plan-title">Enterprise</div>
+                    <div class="plan-price">Custom</div>
+                    <div class="plan-features">• Custom solutions<br>• Dedicated support<br>• API access<br>• White-label options</div>
+                    <button class="plan-btn" onclick="choosePlan('Enterprise')">Contact Sales</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // تبديل بين التبويبات
+        function switchTab(tabName) {
+            // إخفاء جميع الأقسام
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active-section');
+            });
+            
+            // إلغاء تفعيل جميع التبويبات
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // إظهار القسم المختار وتفعيل التبويب
+            document.getElementById(`section-${tabName}`).classList.add('active-section');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // دالة البحث عن الأسعار
+        function performSearch() {
+            const weight = document.getElementById('weight').value;
+            const zone = document.getElementById('zone').value;
+            const service = document.getElementById('service').value;
+            
+            if (!weight || weight <= 0) {
+                alert('Please enter a valid weight');
+                return;
+            }
+
+            // محاكاة حساب السعر
+            const basePrice = {
+                'Standard': 5,
+                'Express': 10,
+                'Overnight': 20
+            };
+
+            const zoneMultiplier = {
+                'EU Zone': 1,
+                'US Zone': 1.5,
+                'Asia': 2
+            };
+
+            const price = basePrice[service] * zoneMultiplier[zone] * weight;
+            
+            const resultDiv = document.getElementById('search-result');
+            resultDiv.innerHTML = `✓ Estimated Price: $${price.toFixed(2)} for ${weight}kg to ${zone} via ${service} shipping`;
+            resultDiv.classList.add('show');
+
+            console.log('Search:', { weight, zone, service, price });
+        }
+
+        // دالة التتبع
+        function performTrack() {
+            const trackingId = document.getElementById('tracking-id').value;
+            
+            if (!trackingId.trim()) {
+                alert('Please enter a tracking number');
+                return;
+            }
+
+            const resultDiv = document.getElementById('track-result');
+            resultDiv.innerHTML = `✓ Tracking ${trackingId}: In Transit - Estimated Delivery: 2-3 Business Days`;
+            resultDiv.classList.add('show');
+
+            console.log('Tracking:', trackingId);
+        }
+
+        // دالة اختيار الخطة
+        function choosePlan(planName) {
+            alert(`You selected: ${planName} plan. Please complete your purchase.`);
+            console.log('Selected Plan:', planName);
+        }
+    </script>
+
+</body>
+</html>
