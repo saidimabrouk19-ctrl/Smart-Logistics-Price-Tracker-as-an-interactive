@@ -137,7 +137,7 @@
 
     <div class="content">
         <div class="input-group">
-            <input type="text" id="trackingInput" placeholder="أدخل رقم التتبع — مثال: LT-77301-PL">
+            <input type="text" id="trackingInput" placeholder="أدخل رقم التتبع — LT-77301-PL">
             <button id="searchBtn">🔍 بحث</button>
         </div>
         <p class="hint">Example: LT-77301-PL</p>
@@ -188,32 +188,31 @@
     </div>
 </div>
 
-<!-- ✅ Firebase روابط صحيحة -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- Firebase compat -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
+<script>
     const firebaseConfig = {
         apiKey: "AIzaSyBq_-yMBzDfK_9fA1fa2Jzpe0O87yw5UbY",
         authDomain: "smart-logistics-f4f86.firebaseapp.com",
         projectId: "smart-logistics-f4f86",
         storageBucket: "smart-logistics-f4f86.firebasestorage.app",
         messagingSenderId: "227224904315",
-        appId: "1:227224904315:web:62f74fb778562111e578de",
-        measurementId: "G-RNWVXQW7ZW"
+        appId: "1:227224904315:web:62f74fb778562111e578de"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
     document.getElementById("searchBtn").addEventListener("click", async () => {
         const input = document.getElementById("trackingInput").value.trim().toUpperCase();
-        const resultBox = document.getElementById("resultBox");
-        const errorBox  = document.getElementById("errorBox");
+        const resultBox  = document.getElementById("resultBox");
+        const errorBox   = document.getElementById("errorBox");
         const loadingBox = document.getElementById("loadingBox");
 
-        resultBox.style.display = "none";
-        errorBox.style.display  = "none";
+        resultBox.style.display  = "none";
+        errorBox.style.display   = "none";
 
         if (!input) {
             alert("⚠️ الرجاء إدخال رقم التتبع!");
@@ -223,17 +222,17 @@
         loadingBox.style.display = "block";
 
         try {
-            // ✅ المجموعة والوثيقة الصحيحة من Firestore
-            const docRef  = doc(db, "hameçonnage", "NDbWXxv0sLgPdzvgwgZK");
-            const docSnap = await getDoc(docRef);
+            // ✅ المجموعة الصحيحة: shipments
+            const docRef  = db.collection("shipments").doc("NDbWXxv0sLgPdzvgwgZK");
+            const docSnap = await docRef.get();
 
             loadingBox.style.display = "none";
 
-            if (docSnap.exists()) {
+            if (docSnap.exists) {
                 const data = docSnap.data();
+                const tn = (data.trackingNumber || '').toUpperCase();
 
-                // التحقق أن رقم التتبع المدخل يطابق ما في Firestore
-                if (data.trackingNumber && data.trackingNumber.toUpperCase() === input) {
+                if (tn === input) {
                     document.getElementById("resNum").textContent      = data.trackingNumber;
                     document.getElementById("resLocation").textContent = data.location;
                     document.getElementById("resStatus").textContent   = data.status;
@@ -244,16 +243,13 @@
             } else {
                 errorBox.style.display = "block";
             }
-
-        } catch (error) {
+        } catch(e) {
             loadingBox.style.display = "none";
-            errorBox.textContent = "⚠️ خطأ: " + error.message;
+            errorBox.textContent = "⚠️ خطأ: " + e.message;
             errorBox.style.display = "block";
-            console.error(error);
         }
     });
 
-    // Enter للبحث
     document.getElementById("trackingInput").addEventListener("keypress", (e) => {
         if (e.key === "Enter") document.getElementById("searchBtn").click();
     });
