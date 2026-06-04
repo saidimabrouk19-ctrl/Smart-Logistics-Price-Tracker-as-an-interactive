@@ -31,15 +31,6 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
         header h1 {
             color: #667eea;
             font-size: 2.5em;
@@ -57,6 +48,7 @@
             padding: 40px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             margin-bottom: 30px;
+            display: block; /* تم التعديل لضمان ظهور العناصر دائما بدون شروط إخفاء */
         }
 
         /* TRACKING SECTION */
@@ -108,8 +100,14 @@
             padding: 20px;
             border-radius: 8px;
             border-left: 4px solid #667eea;
-            display: none;
+            display: none; /* يظهر فقط عند العثور على النتيجة بنجاح */
             margin-top: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .result h3 {
@@ -265,7 +263,7 @@
         <p>Global Shipment Tracking System</p>
     </header>
 
-    <!-- واجهة التتبع من قاعدة البيانات -->
+    <!-- قاطع تتبع الشحنات -->
     <div class="content">
         <div class="tracking-container">
             <div class="input-group">
@@ -273,7 +271,7 @@
                 <button id="searchBtn">Recherche</button>
             </div>
 
-            <!-- لوحة النتائج الاستجابة من الفايربيس -->
+            <!-- صندوق عرض البيانات الاستجابة -->
             <div class="result" id="resultBox">
                 <h3>Détails de la cargaison</h3>
                 <p><strong>Numéro:</strong> <span id="resNum">-</span></p>
@@ -283,7 +281,7 @@
         </div>
     </div>
 
-    <!-- خطط الأسعار والخدمات التفاعلية المحدثة والمكتملة -->
+    <!-- خطط الأسعار والخدمات التفاعلية المكتملة -->
     <div class="content">
         <div class="pricing-grid">
             <div class="pricing-card">
@@ -307,7 +305,7 @@
             </div>
         </div>
 
-        <!-- طرق الدفع المكتملة بدون أي بتر -->
+        <!-- بوابات الدفع التشبيهية كاملة بدون أي بتر في التنسيق -->
         <div class="payment-methods">
             <h3>Méthodes de paiement sécurisées</h3>
             <div class="payment-buttons">
@@ -318,12 +316,12 @@
     </div>
 </div>
 
-<!-- معالجة جافاسكريبت وربطها بـ Firebase بنظام الوحدات المضمون للموبايل -->
+<!-- معالجة الربط بـ Firebase بنظام كود موثوق ومرن ومستقر جدا للموبايل -->
 <script type="module">
     import { initializeApp } from "https://gstatic.com";
     import { getFirestore, doc, getDoc } from "https://gstatic.com";
 
-    // إعدادات مشروع فايربيس الذكي الخاص بك
+    // إعدادات فايربيس الموثقة الخاصة بمشروعك
     const firebaseConfig = {
       apiKey: "AIzaSyBq_-yMBzDfK_9fA1fa2Jzpe0O87yw5UbY",
       authDomain: "://firebaseapp.com",
@@ -334,18 +332,13 @@
       measurementId: "G-RNWVXQW7ZW"
     };
 
-    // تهيئة الاتصال
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // دالة التحكم عند الضغط على زر البحث
+    // دالة البحث والربط مع التنبيه الفوري
     document.getElementById("searchBtn").addEventListener("click", async () => {
-        const trackingInput = document.getElementById("trackingInput").value.trim();
+        const rawInput = document.getElementById("trackingInput").value;
+        const trackingInput = rawInput.trim().toUpperCase(); // تحويل الأحرف تلقائيا لكبيرة وتنظيف المسافات لمنع الأخطاء
         const resultBox = document.getElementById("resultBox");
 
         if (trackingInput === "") {
-            alert("Veuillez entrer un numéro de suivi !");
-            return;
-        }
-
-        // التعديل الذكي والجذري: التحقق من الرقم الموضح بصورتك وتخطي أخطاء الحروف المقطوعة بالهاتف
