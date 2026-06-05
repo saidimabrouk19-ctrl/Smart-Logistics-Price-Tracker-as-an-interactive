@@ -9,42 +9,33 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            min-height: 100vh; padding: 20px;
         }
         .container { max-width: 800px; margin: 0 auto; }
         header {
             background: rgba(255,255,255,0.95);
-            padding: 20px 30px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 20px 30px; border-radius: 12px;
+            margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         header h1 { color: #667eea; font-size: 2.2em; }
         header p { color: #888; margin-top: 5px; }
         .content {
-            background: white;
-            border-radius: 12px;
-            padding: 35px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            margin-bottom: 25px;
+            background: white; border-radius: 12px; padding: 35px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 25px;
         }
         h2 { color: #667eea; margin-bottom: 20px; font-size: 1.4em; }
         .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
         .input-group input {
-            flex: 1; padding: 14px 18px;
-            border: 2px solid #e0e0e0; border-radius: 8px;
-            font-size: 1em; direction: ltr; text-align: left;
+            flex: 1; padding: 14px 18px; border: 2px solid #e0e0e0;
+            border-radius: 8px; font-size: 1em; direction: ltr; text-align: left;
         }
         .input-group input:focus { outline: none; border-color: #667eea; }
-        .input-group button, .price-btn {
-            padding: 14px 25px; background: #667eea;
-            color: white; border: none; border-radius: 8px;
-            cursor: pointer; font-size: 1em; font-weight: bold;
-            transition: all 0.3s; width: 100%;
+        .input-group button {
+            padding: 14px 25px; background: #667eea; color: white;
+            border: none; border-radius: 8px; cursor: pointer;
+            font-size: 1em; font-weight: bold; transition: all 0.3s;
         }
-        .input-group button { width: auto; }
-        .input-group button:hover, .price-btn:hover { background: #764ba2; }
+        .input-group button:hover { background: #764ba2; }
         .hint { font-size: 0.85em; color: #aaa; text-align: center; direction: ltr; margin-bottom: 15px; }
         .loading { text-align: center; padding: 20px; color: #667eea; display: none; }
         .result {
@@ -56,9 +47,9 @@
         .result h3 { color: #667eea; margin-bottom: 15px; }
         .result p { color: #444; margin: 8px 0; line-height: 1.7; }
         .status-badge {
-            display: inline-block; padding: 7px 18px;
-            background: #4caf50; color: white; border-radius: 20px;
-            font-size: 0.9em; margin-top: 10px; font-weight: bold;
+            display: inline-block; padding: 7px 18px; background: #4caf50;
+            color: white; border-radius: 20px; font-size: 0.9em;
+            margin-top: 10px; font-weight: bold;
         }
         .error-msg {
             background: #fff3f3; border-left: 5px solid #f44336;
@@ -70,13 +61,18 @@
             padding: 12px 15px; border: 2px solid #e0e0e0;
             border-radius: 8px; font-size: 1em; direction: ltr; width: 100%;
         }
-        .price-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .price-btn {
+            padding: 14px; background: #667eea; color: white;
+            border: none; border-radius: 8px; cursor: pointer;
+            font-size: 1em; font-weight: bold; width: 100%; transition: all 0.3s;
+        }
+        .price-btn:hover { background: #764ba2; }
         .rates-result { margin-top: 20px; display: none; }
         .rate-card {
             background: #f8f9fa; border-radius: 10px; padding: 15px 20px;
             margin-bottom: 12px; border: 2px solid #e0e0e0;
             display: flex; justify-content: space-between; align-items: center;
-            transition: all 0.3s;
         }
         .rate-card:hover { border-color: #667eea; }
         .rate-card .carrier { font-weight: bold; color: #333; }
@@ -116,7 +112,6 @@
         <p>Global Shipment Tracking & Price Comparison</p>
     </header>
 
-    <!-- تتبع الشحنة -->
     <div class="content">
         <h2>📦 تتبع الشحنة</h2>
         <div class="input-group">
@@ -134,13 +129,12 @@
         <div class="error-msg" id="errorBox">❌ لم يتم العثور على شحنة بهذا الرقم.</div>
     </div>
 
-    <!-- مقارنة أسعار الشحن -->
     <div class="content">
         <h2>💰 مقارنة أسعار الشحن</h2>
         <div class="price-form">
             <div class="row">
-                <input type="text" id="fromZip" placeholder="Zip From (10001)" value="10001">
-                <input type="text" id="toZip" placeholder="Zip To (94105)" value="94105">
+                <input type="text" id="fromZip" placeholder="Zip From" value="10001">
+                <input type="text" id="toZip" placeholder="Zip To" value="94105">
             </div>
             <div class="row">
                 <input type="number" id="weight" placeholder="الوزن" value="2" min="0.1" step="0.1">
@@ -159,7 +153,6 @@
         </div>
     </div>
 
-    <!-- خطط الأسعار -->
     <div class="content">
         <div class="pricing-grid">
             <div class="pricing-card">
@@ -195,7 +188,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-    // Firebase
     firebase.initializeApp({
         apiKey: "AIzaSyBq_-yMBzDfK_9fA1fa2Jzpe0O87yw5UbY",
         authDomain: "smart-logistics-f4f86.firebaseapp.com",
@@ -206,7 +198,6 @@
     });
     const db = firebase.firestore();
 
-    // تتبع الشحنة
     document.getElementById("searchBtn").addEventListener("click", async () => {
         const input = document.getElementById("trackingInput").value.trim().toUpperCase();
         const resultBox = document.getElementById("resultBox");
@@ -236,7 +227,6 @@
         if (e.key === "Enter") document.getElementById("searchBtn").click();
     });
 
-    // أسعار الشحن عبر Netlify Function
     document.getElementById("getRatesBtn").addEventListener("click", async () => {
         const fromZip = document.getElementById("fromZip").value.trim();
         const toZip = document.getElementById("toZip").value.trim();
@@ -252,21 +242,10 @@
         ratesLoading.style.display = "block";
 
         try {
-            // ✅ يستدعي Netlify Function بدل Shippo مباشرة
             const response = await fetch("/.netlify/functions/shippo", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    address_from: { zip: fromZip, country: "US" },
-                    address_to: { zip: toZip, country: "US" },
-                    parcels: [{
-                        length: "10", width: "10", height: "5",
-                        distance_unit: "in",
-                        weight: weight.toString(),
-                        mass_unit: weightUnit
-                    }],
-                    async: false
-                })
+                body: JSON.stringify({ fromZip, toZip, weight, weightUnit })
             });
 
             const data = await response.json();
@@ -293,7 +272,7 @@
                     });
                 ratesResult.style.display = "block";
             } else {
-                ratesError.textContent = "❌ لا توجد أسعار. تحقق من الرمز البريدي.";
+                ratesError.textContent = "❌ لا توجد أسعار متاحة.";
                 ratesError.style.display = "block";
             }
         } catch(e) {
@@ -304,5 +283,5 @@
     });
 </script>
 </body>
-    </html>
-                   
+                        </html>
+    
