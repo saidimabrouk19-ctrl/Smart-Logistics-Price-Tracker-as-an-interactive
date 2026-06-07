@@ -1,5 +1,5 @@
 exports.handler = async function(event, context) {
-  // السيرفر يرجع هذه البيانات مباشرة دون الحاجة للاتصال بأي شركة شحن خارجية
+  // بيانات الأسعار التجريبية المنظمة بصيغة JSON سليمة 100%
   const simulatedRates = {
     status: "success",
     rates: [
@@ -13,7 +13,7 @@ exports.handler = async function(event, context) {
     statusCode: 200,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*" // لتفادي أي حظر أمني من المتصفح (CORS)
+      "Access-Control-Allow-Origin": "*" // لتفادي مشاكل الحظر الأمني CORS في المتصفحات
     },
     body: JSON.stringify(simulatedRates)
   };
