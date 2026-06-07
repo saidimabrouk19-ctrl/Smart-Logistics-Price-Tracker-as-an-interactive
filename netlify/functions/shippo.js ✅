@@ -1,75 +1,20 @@
-exports.handler = async (event) => {
-    if (event.httpMethod === "OPTIONS") {
-        return {
-            statusCode: 200,
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Methods": "POST, OPTIONS"
-            },
-            body: ""
-        };
-    }
+exports.handler = async function(event, context) {
+  // السيرفر يرجع هذه البيانات مباشرة دون الحاجة للاتصال بأي شركة شحن خارجية
+  const simulatedRates = {
+    status: "success",
+    rates: [
+      { company: "DHL Express", price: "$42.00", time: "1-2 يوم" },
+      { company: "FedEx", price: "$31.50", time: "2-3 أيام" },
+      { company: "Aramex", price: "$19.00", time: "4-5 أيام" }
+    ]
+  };
 
-    const SHIPPO_KEY = process.env.SHIPPO_KEY;
-
-    if (!SHIPPO_KEY) {
-        return {
-            statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: "SHIPPO_KEY not found" })
-        };
-    }
-
-    try {
-        const { fromZip, toZip, weight, weightUnit } = JSON.parse(event.body);
-
-        const response = await fetch("https://api.goshippo.com/shipments/", {
-            method: "POST",
-            headers: {
-                "Authorization": "ShippoToken " + SHIPPO_KEY,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                address_from: {
-                    name: "Sender",
-                    street1: "215 Clayton St",
-                    city: "San Francisco",
-                    state: "CA",
-                    zip: fromZip,
-                    country: "US"
-                },
-                address_to: {
-                    name: "Receiver",
-                    street1: "215 Clayton St",
-                    city: "New York",
-                    state: "NY",
-                    zip: toZip,
-                    country: "US"
-                },
-                parcels: [{
-                    length: "10",
-                    width: "10",
-                    height: "5",
-                    distance_unit: "in",
-                    weight: weight.toString(),
-                    mass_unit: weightUnit
-                }],
-                async: false
-            })
-        });
-
-        const text = await response.text();
-        return {
-            statusCode: 200,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: text
-        };
-    } catch (error) {
-        return {
-            statusCode: 500,
-            headers: { "Access-Control-Allow-Origin": "*" },
-            body: JSON.stringify({ error: error.message })
-        };
-    }
+  return {
+    statusCode: 200,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*" // لتفادي أي حظر أمني من المتصفح (CORS)
+    },
+    body: JSON.stringify(simulatedRates)
+  };
 };
