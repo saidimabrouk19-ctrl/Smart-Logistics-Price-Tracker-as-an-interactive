@@ -350,4 +350,40 @@ $("dlgClose").addEventListener("click", () => $("alertDialog").close());
 $("vanList").addEventListener("click", async e => {
   const b = e.target.closest("button[data-act]"); if (!b) return;
   const id = b.dataset.id, act = b.dataset.act, v = vans.find(x => x.id === id);
-  if (act === "op") $
+if (act === "op") $("f-op-" + id).classList.toggle("show");
+  if (act === "intl") $("f-intl-" + id).classList.toggle("show");
+  if (act === "del") { if (confirm("Remove " + id + "?")) removeVan(id); }
+  if (act === "saveintl") {
+    const date = $("intl-date-" + id).value; if (!date) return;
+    v.windowStart = date; v.ops = [];
+    await saveVan(v); renderVans();
+  }
+  if (act === "saveop") {
+    const s = vanStatus(v);
+    if (!s.canAdd) { showDialog("bad", "Cabotage locked", id + " cannot take more cabotage operations. " + s.text); return; }
+    const date = $("op-date-" + id).value, route = $("op-route-" + id).value.trim();
+    if (!date) return;
+    const offset = Math.floor((toMidnight(date) - toMidnight(v.windowStart)) / DAY);
+    if (offset < 0 || offset > WINDOW_DAYS) { showDialog("warn", "Date outside window", "The operation date must be within " + WINDOW_DAYS + " days after the international delivery (" + v.windowStart + ")."); return; }
+    v.ops.push({date, route});
+    await saveVan(v); renderVans();
+    if (v.ops.length >= MAX_CABOTAGE) showDialog("bad", "⛔ " + id + " reached 3/3 cabotage", "Cabotage is now closed for this van. Assign further loads to another van, or log a new international delivery to open a new window.");
+    else if (v.ops.length === MAX_CABOTAGE - 1) showDialog("warn", "⚠️ " + id + " has 1 operation left", "This van has used " + v.ops.length + " of " + MAX_CABOTAGE + " cabotage operations. The next one will close cabotage for this van.");
+  }
+});
+
+$("addVanBtn").addEventListener("click", async () => {
+  const id = $("newPlate").value.trim().toUpperCase().replace(/\s+/g, "-");
+  if (!id) return;
+  if (vans.some(v => v.id === id)) { showDialog("warn", "Already exists", id + " is already in the list."); return; }
+  const v = {id, route:"", windowStart:null, ops:[]};
+  vans.push(v); vans.sort((a,b) => a.id.localeCompare(b.id));
+  $("newPlate").value = "";
+  await saveVan(v); renderVans();
+});
+
+loadVans();
+</script>
+</body>
+</html>
+
