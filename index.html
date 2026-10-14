@@ -1,287 +1,353 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LogisTrack - Global Shipment Tracking</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; padding: 20px;
-        }
-        .container { max-width: 800px; margin: 0 auto; }
-        header {
-            background: rgba(255,255,255,0.95);
-            padding: 20px 30px; border-radius: 12px;
-            margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        header h1 { color: #667eea; font-size: 2.2em; }
-        header p { color: #888; margin-top: 5px; }
-        .content {
-            background: white; border-radius: 12px; padding: 35px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 25px;
-        }
-        h2 { color: #667eea; margin-bottom: 20px; font-size: 1.4em; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
-        .input-group input {
-            flex: 1; padding: 14px 18px; border: 2px solid #e0e0e0;
-            border-radius: 8px; font-size: 1em; direction: ltr; text-align: left;
-        }
-        .input-group input:focus { outline: none; border-color: #667eea; }
-        .input-group button {
-            padding: 14px 25px; background: #667eea; color: white;
-            border: none; border-radius: 8px; cursor: pointer;
-            font-size: 1em; font-weight: bold; transition: all 0.3s;
-        }
-        .input-group button:hover { background: #764ba2; }
-        .hint { font-size: 0.85em; color: #aaa; text-align: center; direction: ltr; margin-bottom: 15px; }
-        .loading { text-align: center; padding: 20px; color: #667eea; display: none; }
-        .result {
-            background: #f0f4ff; padding: 25px; border-radius: 10px;
-            border-left: 5px solid #667eea; display: none; margin-top: 15px;
-            animation: fadeIn 0.4s ease;
-        }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-        .result h3 { color: #667eea; margin-bottom: 15px; }
-        .result p { color: #444; margin: 8px 0; line-height: 1.7; }
-        .status-badge {
-            display: inline-block; padding: 7px 18px; background: #4caf50;
-            color: white; border-radius: 20px; font-size: 0.9em;
-            margin-top: 10px; font-weight: bold;
-        }
-        .error-msg {
-            background: #fff3f3; border-left: 5px solid #f44336;
-            padding: 18px; border-radius: 10px; color: #c62828;
-            margin-top: 15px; display: none;
-        }
-        .price-form { display: grid; gap: 12px; }
-        .price-form input, .price-form select {
-            padding: 12px 15px; border: 2px solid #e0e0e0;
-            border-radius: 8px; font-size: 1em; direction: ltr; width: 100%;
-        }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .price-btn {
-            padding: 14px; background: #667eea; color: white;
-            border: none; border-radius: 8px; cursor: pointer;
-            font-size: 1em; font-weight: bold; width: 100%; transition: all 0.3s;
-        }
-        .price-btn:hover { background: #764ba2; }
-        .rates-result { margin-top: 20px; display: none; }
-        .rate-card {
-            background: #f8f9fa; border-radius: 10px; padding: 15px 20px;
-            margin-bottom: 12px; border: 2px solid #e0e0e0;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .rate-card:hover { border-color: #667eea; }
-        .rate-card .carrier { font-weight: bold; color: #333; }
-        .rate-card .service { color: #888; font-size: 0.9em; }
-        .rate-card .days { color: #888; font-size: 0.85em; }
-        .rate-card .price { font-size: 1.4em; font-weight: bold; color: #667eea; }
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
-        .pricing-card {
-            background: #f8f9fa; border-radius: 10px; padding: 28px;
-            text-align: center; border: 2px solid transparent; transition: all 0.3s;
-        }
-        .pricing-card:hover { border-color: #667eea; transform: translateY(-8px); }
-        .pricing-card.featured { background: #667eea; color: white; }
-        .pricing-card h3 { font-size: 1.6em; margin-bottom: 12px; }
-        .price-tag { font-size: 2.3em; font-weight: bold; margin: 15px 0; color: #667eea; }
-        .pricing-card.featured .price-tag { color: white; }
-        .features { text-align: right; margin: 18px 0; }
-        .features li { list-style: none; padding: 7px 0; color: #666; }
-        .pricing-card.featured .features li { color: white; }
-        .features li:before { content: "✓ "; color: #667eea; font-weight: bold; }
-        .pricing-card.featured .features li:before { color: white; }
-        .payment-methods { margin-top: 28px; padding-top: 28px; border-top: 2px solid #eee; }
-        .payment-methods h3 { color: #667eea; margin-bottom: 18px; text-align: center; }
-        .payment-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .payment-btn {
-            padding: 14px; border: 2px solid #e0e0e0; border-radius: 8px;
-            background: white; cursor: pointer; font-size: 1em; font-weight: bold;
-        }
-        .payment-btn.stripe { color: #635BFF; border-color: #635BFF; }
-        .payment-btn.paypal { color: #003087; border-color: #003087; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LogisTrack - Tracking, Rates & Cabotage TMS</title>
+<style>
+:root{--ink:#1f2340;--muted:#6b7090;--brand:#4b4fd6;--brand2:#764ba2;--line:#e3e5f2;--ok:#2e9e5b;--warn:#e08a00;--bad:#d63b3b;--bg:#f3f4fb}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;color:var(--ink);background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:16px}
+.container{max-width:860px;margin:0 auto}
+header{background:rgba(255,255,255,.96);border-radius:14px;padding:18px 22px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+header h1{color:var(--brand);font-size:1.8em}
+header p{color:var(--muted);font-size:.92em;margin-top:2px}
+.company-link{display:none;padding:10px 16px;border-radius:8px;background:var(--ink);color:#fff;text-decoration:none;font-weight:600;font-size:.92em}
+nav{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px}
+nav button{flex:1 0 auto;padding:12px 16px;border:0;border-radius:10px;background:rgba(255,255,255,.25);color:#fff;font-weight:600;font-size:.95em;cursor:pointer}
+nav button[aria-selected="true"]{background:#fff;color:var(--brand)}
+nav button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
+.panel{display:none;background:#fff;border-radius:14px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,.18)}
+.panel.active{display:block}
+h2{color:var(--brand);font-size:1.3em;margin-bottom:6px}
+.sub{color:var(--muted);font-size:.92em;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.row>*{flex:1 1 140px;min-width:0}
+input,select{padding:12px 14px;border:2px solid var(--line);border-radius:8px;font-size:1em;width:100%;background:#fff;color:var(--ink)}
+input:focus,select:focus{border-color:var(--brand);outline:none}
+.btn{padding:12px 18px;border:0;border-radius:8px;background:var(--brand);color:#fff;font-weight:700;font-size:.95em;cursor:pointer}
+.btn:hover{background:var(--brand2)}
+.btn:disabled{background:#c9cbe0;cursor:not-allowed}
+.btn.ghost{background:#eef0fb;color:var(--brand)}
+.btn.danger{background:#fdeaea;color:var(--bad)}
+.hint{font-size:.85em;color:var(--muted);margin:4px 0 12px}
+.box{display:none;margin-top:14px;padding:16px;border-radius:10px;background:var(--bg);border-left:5px solid var(--brand)}
+.box.err{background:#fff3f3;border-left-color:var(--bad);color:#a12525}
+.box.show{display:block}
+.badge{display:inline-block;padding:5px 14px;border-radius:20px;background:var(--ok);color:#fff;font-weight:700;font-size:.85em;margin-top:8px}
+.rate{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 16px;border:2px solid var(--line);border-radius:10px;margin-bottom:10px}
+.rate .price{font-size:1.3em;font-weight:800;color:var(--brand)}
+.small{font-size:.85em;color:var(--muted)}
+.van{border:2px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.van.warn{border-color:var(--warn)}
+.van.locked{border-color:var(--bad);background:#fff8f8}
+.van-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.van-top strong{font-size:1.1em}
+.tag{padding:4px 12px;border-radius:20px;font-size:.8em;font-weight:700;color:#fff;background:var(--ok)}
+.tag.warn{background:var(--warn)}.tag.locked{background:var(--bad)}.tag.idle{background:#8a8fb0}
+.meter{display:flex;gap:6px;margin:12px 0 6px}
+.meter span{flex:1;height:12px;border-radius:6px;background:var(--line)}
+.meter span.on{background:var(--ok)}
+.van.warn .meter span.on{background:var(--warn)}
+.van.locked .meter span.on{background:var(--bad)}
+.van-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--brand);font-weight:600;font-size:.9em}
+ul.ops{margin:8px 0 0 18px;font-size:.9em;color:var(--muted)}
+.form-inline{display:none;margin-top:12px;padding:14px;border-radius:10px;background:var(--bg)}
+.form-inline.show{display:block}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.plan{border:2px solid var(--line);border-radius:12px;padding:22px;text-align:center}
+.plan.pro{background:var(--brand);color:#fff;border-color:var(--brand)}
+.plan .p{font-size:2.1em;font-weight:800;margin:10px 0}
+.plan ul{list-style:none;text-align:left;margin-top:10px}
+.plan li{padding:5px 0}
+.plan li:before{content:"✓ ";font-weight:700}
+.pay{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.pay button{padding:13px;border:2px solid;border-radius:8px;background:#fff;font-weight:700;cursor:pointer}
+dialog{border:0;border-radius:14px;padding:24px;max-width:420px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(20,20,40,.55)}
+dialog h3{margin-bottom:8px}
+dialog.bad h3{color:var(--bad)}dialog.warn h3{color:var(--warn)}
+dialog p{margin-bottom:16px;line-height:1.5}
+.note{font-size:.82em;color:var(--muted);margin-top:14px;line-height:1.5}
+@media(max-width:520px){.panel{padding:18px}.pay{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>🚚 LogisTrack</h1>
-        <p>Global Shipment Tracking & Price Comparison</p>
-    </header>
-
-    <div class="content">
-        <h2>📦 تتبع الشحنة</h2>
-        <div class="input-group">
-            <input type="text" id="trackingInput" placeholder="أدخل رقم التتبع — LT-77301-PL">
-            <button id="searchBtn">🔍 بحث</button>
-        </div>
-        <p class="hint">Example: LT-77301-PL</p>
-        <div class="loading" id="loadingBox">⏳ جاري البحث...</div>
-        <div class="result" id="resultBox">
-            <h3>📦 تفاصيل الشحنة</h3>
-            <p><strong>رقم التتبع:</strong> <span id="resNum">-</span></p>
-            <p><strong>الموقع:</strong> <span id="resLocation">-</span></p>
-            <div class="status-badge" id="resStatus">-</div>
-        </div>
-        <div class="error-msg" id="errorBox">❌ لم يتم العثور على شحنة بهذا الرقم.</div>
+  <header>
+    <div>
+      <h1>🚚 LogisTrack</h1>
+      <p>Shipment tracking, rate comparison & cabotage control</p>
     </div>
+    <a class="company-link" id="companyLink" target="_blank" rel="noopener">Company site</a>
+  </header>
 
-    <div class="content">
-        <h2>💰 مقارنة أسعار الشحن</h2>
-        <div class="price-form">
-            <div class="row">
-                <input type="text" id="fromZip" placeholder="Zip From" value="10001">
-                <input type="text" id="toZip" placeholder="Zip To" value="94105">
-            </div>
-            <div class="row">
-                <input type="number" id="weight" placeholder="الوزن" value="2" min="0.1" step="0.1">
-                <select id="weightUnit">
-                    <option value="lb">باوند (lb)</option>
-                    <option value="kg">كيلوغرام (kg)</option>
-                </select>
-            </div>
-            <button class="price-btn" id="getRatesBtn">🔍 احصل على أسعار الشحن</button>
-        </div>
-        <div class="loading" id="ratesLoading">⏳ جاري جلب الأسعار...</div>
-        <div class="error-msg" id="ratesError">❌ خطأ في جلب الأسعار.</div>
-        <div class="rates-result" id="ratesResult">
-            <h3 style="color:#667eea;margin-bottom:15px;">🏷️ أفضل الأسعار:</h3>
-            <div id="ratesList"></div>
-        </div>
-    </div>
+  <nav role="tablist" aria-label="Sections">
+    <button role="tab" aria-selected="true" data-tab="track">📦 Track</button>
+    <button role="tab" aria-selected="false" data-tab="rates">💰 Rates</button>
+    <button role="tab" aria-selected="false" data-tab="cabotage">🚐 Cabotage</button>
+    <button role="tab" aria-selected="false" data-tab="plans">💳 Plans</button>
+  </nav>
 
-    <div class="content">
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Basic</h3>
-                <div class="price-tag">$19<span style="font-size:0.4em;">/mo</span></div>
-                <ul class="features">
-                    <li>تتبع 50 طرد</li>
-                    <li>دعم بالبريد</li>
-                    <li>تحديثات يومية</li>
-                </ul>
-            </div>
-            <div class="pricing-card featured">
-                <h3>Pro</h3>
-                <div class="price-tag">$49<span style="font-size:0.4em;">/mo</span></div>
-                <ul class="features">
-                    <li>تتبع غير محدود</li>
-                    <li>دعم 24/7</li>
-                    <li>إشعارات فورية</li>
-                    <li>وصول API</li>
-                </ul>
-            </div>
-        </div>
-        <div class="payment-methods">
-            <h3>طرق الدفع الآمنة</h3>
-            <div class="payment-buttons">
-                <button class="payment-btn stripe" onclick="alert('✅ Stripe!')">💳 Stripe</button>
-                <button class="payment-btn paypal" onclick="alert('✅ PayPal!')">🅿 PayPal</button>
-            </div>
-        </div>
+  <!-- TRACK -->
+  <section class="panel active" id="tab-track">
+    <h2>Track a shipment</h2>
+    <p class="sub">Enter your tracking number to see its location and status.</p>
+    <div class="row">
+      <input type="text" id="trackingInput" placeholder="LT-77301-PL" autocomplete="off" aria-label="Tracking number">
+      <button class="btn" id="searchBtn" style="flex:0 0 auto">🔍 Search</button>
     </div>
+    <p class="hint">Example: LT-77301-PL</p>
+    <div class="box" id="loadingBox">⏳ Searching…</div>
+    <div class="box" id="resultBox">
+      <h3>Shipment details</h3>
+      <p><strong>Tracking number:</strong> <span id="resNum">-</span></p>
+      <p><strong>Location:</strong> <span id="resLocation">-</span></p>
+      <div class="badge" id="resStatus">-</div>
+    </div>
+    <div class="box err" id="errorBox"></div>
+  </section>
+
+  <!-- RATES -->
+  <section class="panel" id="tab-rates">
+    <h2>Compare shipping rates</h2>
+    <p class="sub">Enter origin, destination and weight to see the cheapest carriers.</p>
+    <div class="row">
+      <input type="text" id="fromZip" placeholder="Zip from" value="10001" aria-label="Zip from">
+      <input type="text" id="toZip" placeholder="Zip to" value="94105" aria-label="Zip to">
+    </div>
+    <div class="row">
+      <input type="number" id="weight" value="2" min="0.1" step="0.1" aria-label="Weight">
+      <select id="weightUnit" aria-label="Weight unit"><option value="lb">Pounds (lb)</option><option value="kg">Kilograms (kg)</option></select>
+    </div>
+    <button class="btn" id="getRatesBtn" style="width:100%">🔍 Get shipping rates</button>
+    <div class="box" id="ratesLoading">⏳ Fetching rates…</div>
+    <div class="box err" id="ratesError"></div>
+    <div id="ratesList" style="margin-top:16px"></div>
+  </section>
+
+  <!-- CABOTAGE -->
+  <section class="panel" id="tab-cabotage">
+    <h2>Cabotage control (TMS)</h2>
+    <p class="sub">Each van is limited to 3 cabotage operations within 7 days after unloading an international delivery. At 3/3 the van is locked automatically.</p>
+    <div class="row">
+      <input type="text" id="newPlate" placeholder="New van ID, e.g. VAN-BG-06" aria-label="New van ID">
+      <button class="btn ghost" id="addVanBtn" style="flex:0 0 auto">+ Add van</button>
+    </div>
+    <div id="storageNote" class="note" style="display:none"></div>
+    <div id="vanList" style="margin-top:14px"></div>
+    <p class="note">Rule used: EU Regulation 1072/2009 as a general limit (3 operations in 7 days, per vehicle, after an international delivery). Rules differ by country and vehicle type, so confirm with your compliance adviser before relying on this tool.</p>
+  </section>
+
+  <!-- PLANS -->
+  <section class="panel" id="tab-plans">
+    <h2>Plans</h2>
+    <p class="sub">Pick the plan that fits your fleet.</p>
+    <div class="plans">
+      <div class="plan"><h3>Basic</h3><div class="p">$19<span style="font-size:.4em">/mo</span></div>
+        <ul><li>Track 50 parcels</li><li>Email support</li><li>Daily updates</li></ul></div>
+      <div class="plan pro"><h3>Pro</h3><div class="p">$49<span style="font-size:.4em">/mo</span></div>
+        <ul><li>Unlimited tracking</li><li>24/7 support</li><li>Instant notifications</li><li>API access</li><li>Cabotage control for all vans</li></ul></div>
+    </div>
+    <h3 style="text-align:center;margin-top:24px;color:var(--brand)">Secure payment</h3>
+    <div class="pay">
+      <button style="color:#635BFF;border-color:#635BFF" onclick="alert('Stripe checkout is not connected yet.')">💳 Stripe</button>
+      <button style="color:#003087;border-color:#003087" onclick="alert('PayPal checkout is not connected yet.')">🅿 PayPal</button>
+    </div>
+  </section>
 </div>
+
+<dialog id="alertDialog">
+  <h3 id="dlgTitle"></h3>
+  <p id="dlgText"></p>
+  <button class="btn" id="dlgClose" style="width:100%">Understood</button>
+</dialog>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-    firebase.initializeApp({
-        apiKey: "AIzaSyBq_-yMBzDfK_9fA1fa2Jzpe0O87yw5UbY",
-        authDomain: "smart-logistics-f4f86.firebaseapp.com",
-        projectId: "smart-logistics-f4f86",
-        storageBucket: "smart-logistics-f4f86.firebasestorage.app",
-        messagingSenderId: "227224904315",
-        appId: "1:227224904315:web:62f74fb778562111e578de"
-    });
-    const db = firebase.firestore();
+/* ===== CONFIG ===== */
+const COMPANY_SITE_URL = "https://saidimabrouk19-ctrl.github.io/Transport-compagnie-in-Bulgarie-/";
+const MAX_CABOTAGE = 3;
+const WINDOW_DAYS = 7;
+const DEFAULT_VANS = [
+  {id:"VAN-BG-01", route:"Sofia → Belgrade → Vienna"},
+  {id:"VAN-BG-02", route:"Sofia → Budapest → Munich"},
+  {id:"VAN-BG-03", route:"Greece ↔ Romania cabotage"},
+  {id:"VAN-BG-04", route:"Sofia → Serbia → Frankfurt"},
+  {id:"VAN-BG-05", route:"Romania ↔ Greece cabotage"}
+];
 
-    document.getElementById("searchBtn").addEventListener("click", async () => {
-        const input = document.getElementById("trackingInput").value.trim().toUpperCase();
-        const resultBox = document.getElementById("resultBox");
-        const errorBox = document.getElementById("errorBox");
-        const loadingBox = document.getElementById("loadingBox");
-        resultBox.style.display = errorBox.style.display = "none";
-        if (!input) { alert("⚠️ أدخل رقم التتبع!"); return; }
-        loadingBox.style.display = "block";
-        try {
-            const snap = await db.collection("shipments").doc("NDbWXxv0sLgPdzvgwgZK").get();
-            loadingBox.style.display = "none";
-            if (snap.exists && (snap.data().trackingNumber||'').toUpperCase() === input) {
-                const d = snap.data();
-                document.getElementById("resNum").textContent = d.trackingNumber;
-                document.getElementById("resLocation").textContent = d.location;
-                document.getElementById("resStatus").textContent = d.status;
-                resultBox.style.display = "block";
-            } else { errorBox.style.display = "block"; }
-        } catch(e) {
-            loadingBox.style.display = "none";
-            errorBox.textContent = "⚠️ خطأ: " + e.message;
-            errorBox.style.display = "block";
-        }
-    });
+let db = null;
+try {
+  firebase.initializeApp({
+    apiKey:"AIzaSyBq_-yMBzDfK_9fA1fa2Jzpe0O87yw5UbY",
+    authDomain:"smart-logistics-f4f86.firebaseapp.com",
+    projectId:"smart-logistics-f4f86",
+    storageBucket:"smart-logistics-f4f86.firebasestorage.app",
+    messagingSenderId:"227224904315",
+    appId:"1:227224904315:web:62f74fb778562111e578de"
+  });
+  db = firebase.firestore();
+} catch (e) { db = null; }
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-    document.getElementById("trackingInput").addEventListener("keypress", e => {
-        if (e.key === "Enter") document.getElementById("searchBtn").click();
-    });
+/* ===== Company link ===== */
+if (COMPANY_SITE_URL) { const a = $("companyLink"); a.href = COMPANY_SITE_URL; a.style.display = "inline-block"; }
 
-    document.getElementById("getRatesBtn").addEventListener("click", async () => {
-        const fromZip = document.getElementById("fromZip").value.trim();
-        const toZip = document.getElementById("toZip").value.trim();
-        const weight = parseFloat(document.getElementById("weight").value);
-        const weightUnit = document.getElementById("weightUnit").value;
-        const ratesLoading = document.getElementById("ratesLoading");
-        const ratesError = document.getElementById("ratesError");
-        const ratesResult = document.getElementById("ratesResult");
-        const ratesList = document.getElementById("ratesList");
+/* ===== Tabs ===== */
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach(x => x.setAttribute("aria-selected", x === b));
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  $("tab-" + b.dataset.tab).classList.add("active");
+}));
+if (location.hash === "#cabotage") document.querySelector('[data-tab="cabotage"]').click();
 
-        ratesResult.style.display = ratesError.style.display = "none";
-        if (!fromZip || !toZip || !weight) { alert("⚠️ أكمل جميع الحقول!"); return; }
-        ratesLoading.style.display = "block";
+/* ===== Tracking ===== */
+async function search() {
+  const input = $("trackingInput").value.trim().toUpperCase();
+  ["resultBox","errorBox","loadingBox"].forEach(i => $(i).classList.remove("show"));
+  if (!input) { $("errorBox").textContent = "⚠️ Enter a tracking number."; $("errorBox").classList.add("show"); return; }
+  $("loadingBox").classList.add("show");
+  try {
+    if (!db) throw new Error("database not reachable. Open the site from its GitHub Pages link.");
+    const snap = await db.collection("shipments").where("trackingNumber", "==", input).limit(1).get();
+    $("loadingBox").classList.remove("show");
+    if (!snap.empty) {
+      const d = snap.docs[0].data();
+      $("resNum").textContent = d.trackingNumber;
+      $("resLocation").textContent = d.location;
+      $("resStatus").textContent = d.status;
+      $("resultBox").classList.add("show");
+    } else {
+      $("errorBox").textContent = "❌ No shipment found with this number.";
+      $("errorBox").classList.add("show");
+    }
+  } catch (e) {
+    $("loadingBox").classList.remove("show");
+    $("errorBox").textContent = "⚠️ Could not search: " + e.message;
+    $("errorBox").classList.add("show");
+  }
+}
+$("searchBtn").addEventListener("click", search);
+$("trackingInput").addEventListener("keypress", e => { if (e.key === "Enter") search(); });
 
-        try {
-            const response = await fetch("/.netlify/functions/shippo", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ fromZip, toZip, weight, weightUnit })
-            });
+/* ===== Rates ===== */
+$("getRatesBtn").addEventListener("click", async () => {
+  const fromZip = $("fromZip").value.trim(), toZip = $("toZip").value.trim();
+  const weight = parseFloat($("weight").value), weightUnit = $("weightUnit").value;
+  $("ratesError").classList.remove("show"); $("ratesList").innerHTML = "";
+  if (!fromZip || !toZip || !weight) { $("ratesError").textContent = "⚠️ Fill in all fields."; $("ratesError").classList.add("show"); return; }
+  $("ratesLoading").classList.add("show");
+  try {
+    const res = await fetch("/.netlify/functions/shippo", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({fromZip,toZip,weight,weightUnit})});
+    const data = await res.json();
+    $("ratesLoading").classList.remove("show");
+    if (data.rates && data.rates.length) {
+      $("ratesList").innerHTML = data.rates.sort((a,b)=>parseFloat(a.amount)-parseFloat(b.amount)).slice(0,6).map(r => `
+        <div class="rate"><div><strong>${esc(r.provider)}</strong><div class="small">${esc(r.servicelevel && r.servicelevel.name)}</div>
+        <div class="small">${r.estimated_days ? esc(r.estimated_days) + " days" : ""}</div></div>
+        <div style="text-align:right"><div class="price">$${parseFloat(r.amount).toFixed(2)}</div><div class="small">${esc(r.currency)}</div></div></div>`).join("");
+    } else { $("ratesError").textContent = "❌ No rates available."; $("ratesError").classList.add("show"); }
+  } catch (e) {
+    $("ratesLoading").classList.remove("show");
+    $("ratesError").textContent = "❌ Rates service unavailable. It runs as a Netlify function, so it only works when the site is hosted on Netlify.";
+    $("ratesError").classList.add("show");
+  }
+});
 
-            const data = await response.json();
-            ratesLoading.style.display = "none";
+/* ===== Cabotage TMS ===== */
+let vans = [];
+let useLocal = false;
+const DAY = 86400000;
+const todayStr = () => new Date().toISOString().slice(0,10);
+const toMidnight = s => new Date(s + "T00:00:00");
 
-            if (data.rates && data.rates.length > 0) {
-                ratesList.innerHTML = "";
-                data.rates
-                    .sort((a, b) => parseFloat(a.amount) - parseFloat(b.amount))
-                    .slice(0, 6)
-                    .forEach(rate => {
-                        ratesList.innerHTML += `
-                        <div class="rate-card">
-                            <div>
-                                <div class="carrier">${rate.provider}</div>
-                                <div class="service">${rate.servicelevel.name}</div>
-                                <div class="days">${rate.estimated_days ? rate.estimated_days + ' أيام' : ''}</div>
-                            </div>
-                            <div style="text-align:left">
-                                <div class="price">$${parseFloat(rate.amount).toFixed(2)}</div>
-                                <div class="days">${rate.currency}</div>
-                            </div>
-                        </div>`;
-                    });
-                ratesResult.style.display = "block";
-            } else {
-                ratesError.textContent = "❌ لا توجد أسعار متاحة.";
-                ratesError.style.display = "block";
-            }
-        } catch(e) {
-            ratesLoading.style.display = "none";
-            ratesError.textContent = "❌ خطأ: " + e.message;
-            ratesError.style.display = "block";
-        }
-    });
-</script>
-</body>
-                        </html>
-    
+async function loadVans() {
+  try {
+    if (!db) throw new Error("no db");
+    const snap = await db.collection("vans").get();
+    vans = snap.docs.map(d => d.data());
+    if (!vans.length) {
+      vans = DEFAULT_VANS.map(v => ({...v, windowStart:null, ops:[]}));
+      for (const v of vans) await db.collection("vans").doc(v.id).set(v);
+    }
+  } catch (e) {
+    useLocal = true;
+    vans = JSON.parse(localStorage.getItem("vans") || "null") || DEFAULT_VANS.map(v => ({...v, windowStart:null, ops:[]}));
+    $("storageNote").style.display = "block";
+    $("storageNote").textContent = "Cloud storage is not writable (check Firestore rules). Data is saved on this device only.";
+  }
+  vans.sort((a,b) => a.id.localeCompare(b.id));
+  renderVans();
+}
+async function saveVan(v) {
+  if (!useLocal && db) {
+    try { await db.collection("vans").doc(v.id).set(v); return; }
+    catch (e) { useLocal = true; $("storageNote").style.display = "block"; $("storageNote").textContent = "Cloud storage is not writable (check Firestore rules). Data is saved on this device only."; }
+  }
+  try { localStorage.setItem("vans", JSON.stringify(vans)); } catch (e) {}
+}
+async function removeVan(id) {
+  vans = vans.filter(v => v.id !== id);
+  if (!useLocal && db) { try { await db.collection("vans").doc(id).delete(); } catch (e) { useLocal = true; } }
+  try { localStorage.setItem("vans", JSON.stringify(vans)); } catch (e) {}
+  renderVans();
+}
+
+function vanStatus(v) {
+  const count = v.ops.length;
+  if (!v.windowStart) return {state:"idle", count, text:"No active window. Log an international delivery to start one.", canAdd:false};
+  const used = Math.floor((toMidnight(todayStr()) - toMidnight(v.windowStart)) / DAY);
+  const left = WINDOW_DAYS - used;
+  if (left < 0) return {state:"locked", count, text:"7-day window expired. Log a new international delivery to unlock.", canAdd:false};
+  if (count >= MAX_CABOTAGE) return {state:"locked", count, text:`Locked: ${MAX_CABOTAGE}/${MAX_CABOTAGE} operations used. ${left} day(s) left in window.`, canAdd:false};
+  if (count === MAX_CABOTAGE - 1) return {state:"warn", count, text:`Warning: 1 operation left. ${left} day(s) left in window.`, canAdd:true};
+  return {state:"ok", count, text:`${MAX_CABOTAGE - count} operations left. ${left} day(s) left in window.`, canAdd:true};
+}
+
+function renderVans() {
+  $("vanList").innerHTML = vans.map(v => {
+    const s = vanStatus(v);
+    const cls = s.state === "warn" ? "warn" : s.state === "locked" ? "locked" : "";
+    const label = {ok:"Open", warn:"1 left", locked:"Locked", idle:"No window"}[s.state];
+    const tagCls = s.state === "ok" ? "" : s.state;
+    const id = esc(v.id);
+    return `<div class="van ${cls}">
+      <div class="van-top"><div><strong>${id}</strong><div class="small">${esc(v.route || "")}</div></div><span class="tag ${tagCls}">${label}</span></div>
+      <div class="meter" aria-label="${s.count} of ${MAX_CABOTAGE} cabotage operations used">${[0,1,2].map(i => `<span class="${i < s.count ? "on" : ""}"></span>`).join("")}</div>
+      <div class="small"><strong>${s.count}/${MAX_CABOTAGE}</strong> cabotage operations · ${esc(s.text)}</div>
+      <div class="van-actions">
+        <button class="btn" data-act="op" data-id="${id}" ${s.canAdd ? "" : "disabled"}>+ Cabotage operation</button>
+        <button class="btn ghost" data-act="intl" data-id="${id}">International delivery unloaded</button>
+        <button class="btn danger" data-act="del" data-id="${id}">Remove</button>
+      </div>
+      <div class="form-inline" id="f-op-${id}">
+        <div class="row"><input type="date" id="op-date-${id}" value="${todayStr()}" aria-label="Operation date"><input type="text" id="op-route-${id}" placeholder="From → To (e.g. Athens → Sofia)" aria-label="Route"></div>
+        <button class="btn" data-act="saveop" data-id="${id}">Save operation</button>
+      </div>
+      <div class="form-inline" id="f-intl-${id}">
+        <div class="row"><input type="date" id="intl-date-${id}" value="${todayStr()}" aria-label="Unloading date"></div>
+        <p class="hint">This starts a new 7-day window and resets the cabotage counter for this van.</p>
+        <button class="btn" data-act="saveintl" data-id="${id}">Start new window</button>
+      </div>
+      ${v.ops.length ? `<details><summary>Operations in this window (${v.ops.length})</summary><ul class="ops">${v.ops.map(o => `<li>${esc(o.date)} — ${esc(o.route || "no route")}</li>`).join("")}</ul></details>` : ""}
+    </div>`;
+  }).join("") || '<p class="small">No vans yet. Add one above.</p>';
+}
+
+function showDialog(kind, title, text) {
+  const d = $("alertDialog"); d.className = kind;
+  $("dlgTitle").textContent = title; $("dlgText").textContent = text;
+  if (!d.open) d.showModal();
+}
+$("dlgClose").addEventListener("click", () => $("alertDialog").close());
+
+$("vanList").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const id = b.dataset.id, act = b.dataset.act, v = vans.find(x => x.id === id);
+  if (act === "op") $
